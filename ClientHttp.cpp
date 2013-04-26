@@ -25,7 +25,7 @@ void ClientHttp::CommunicationChannel()
         }else //there is an error
         {
             m_bVal = false;
-            ErrorDescription(m_oReply->error());
+            qDebug() << ErrorDescription(m_oReply->error());
         }
         m_oReply->deleteLater();
     }
