@@ -1,0 +1,12 @@
+#ifndef FILEHASH_GLOBAL_H
+#define FILEHASH_GLOBAL_H
+
+#include <QtCore/qglobal.h>
+
+#if defined(FILEHASH_LIBRARY)
+#  define FILEHASHSHARED_EXPORT Q_DECL_EXPORT
+#else
+#  define FILEHASHSHARED_EXPORT Q_DECL_IMPORT
+#endif
+
+#endif // FILEHASH_GLOBAL_H
