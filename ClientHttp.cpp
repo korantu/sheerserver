@@ -4,6 +4,32 @@ ClientHttp::ClientHttp()
 {
 }
 
+//To connect to the server and post data(username, Password) and file
+void ClientHttp::ConnectServer()
+{
+    m_oNetworkManager = new QNetworkAccessManager(this);
+    QUrl m_oUrl(m_sUrlServer);
+
+    QString bound="margin";
+    QByteArray m_bDataToSend(QString("--" + bound + "\r\n").toUtf8());
+
+    m_bDataToSend.append("--" + bound + "--\r\n");
+
+    QNetworkRequest m_oRequest = QNetworkRequest(m_oUrl);
+    m_oRequest.setRawHeader("User", m_sUserName.toUtf8());
+    m_oRequest.setRawHeader("Password", m_sUserPassword.toUtf8());
+    m_oRequest.setRawHeader(QString("Content-Type").toUtf8(),QString("multipart/form-data; boundary=" + bound).toUtf8());
+    m_oRequest.setRawHeader(QString("Content-Lenght").toUtf8(), QString::number(m_bDataToSend.length()).toUtf8());
+
+    QEventLoop loop;
+    m_oReply = m_oNetworkManager->post(m_oRequest, m_bDataToSend);
+    connect(m_oNetworkManager, SIGNAL(finished(QNetworkReply*)), &loop, SLOT(quit()));
+    loop.exec();
+
+    DataRetrieve(m_oReply);
+}
+
+// Connect to the server and get a response
 void ClientHttp::CommunicationChannel()
 {
     m_oNetworkManager = new QNetworkAccessManager(this);
@@ -14,26 +40,40 @@ void ClientHttp::CommunicationChannel()
     connect(m_oReply, SIGNAL(readyRead()), &loop, SLOT(quit()));
     loop.exec();
 
-    if(m_oReply){
-        m_bVal = true;
-        if(m_oReply->error() == QNetworkReply::NoError) //If there is no error
-        {
-            qDebug() << "Received Network Reply\n";
-            QByteArray m_oData = m_oReply->readAll();
-            str = m_oData;
-            qDebug() << m_oData;
-        }else //there is an error
-        {
-            m_bVal = false;
-            qDebug() << ErrorDescription(m_oReply->error());
-        }
-        m_oReply->deleteLater();
+    DataRetrieve(m_oReply);
+}
+
+void ClientHttp::UploadFileToServer()
+{
+    m_oNetworkManager = new QNetworkAccessManager(this);
+    QUrl m_oUrl(m_sUrlServer);
+
+    QString bound="margin";
+    QByteArray m_bDataToSend(QString("--" + bound + "\r\n").toUtf8());
+
+    //file to upload
+    QFile m_oMyFile(m_sFileNameCom);
+    if(!m_oMyFile.open(QIODevice::ReadOnly))
+    {
+        return;
     }
+    m_bDataToSend.append(m_oMyFile.readAll());
+    m_bDataToSend.append("--" + bound + "--\r\n");
+
+    QNetworkRequest m_oRequest = QNetworkRequest(m_oUrl);
+
+    m_oRequest.setRawHeader(QString("Content-Lenght").toUtf8(), QString::number(m_bDataToSend.length()).toUtf8());
+
+    QEventLoop loop;
+    m_oReply = m_oNetworkManager->post(m_oRequest, m_bDataToSend);
+    connect(m_oNetworkManager, SIGNAL(finished(QNetworkReply*)), &loop, SLOT(quit()));
+    loop.exec();
+
+    DataRetrieve(m_oReply);
 }
 
 QString ClientHttp::ErrorDescription(QNetworkReply::NetworkError m_sErr)
 {
-    m_bVal = false;
     QString m_sResult;
     switch(m_sErr)
     {
@@ -64,6 +104,31 @@ QString ClientHttp::ErrorDescription(QNetworkReply::NetworkError m_sErr)
     return m_sResult;
 }
 
+void ClientHttp::DataRetrieve(QNetworkReply *m_oReplyVal)
+{
+    qDebug() << "Hello" << m_oReplyVal->isFinished() << m_oReplyVal->error() << "\n";
+    if(m_oReplyVal){
+        m_bVal = true;
+        if(m_oReplyVal->error() == QNetworkReply::NoError) //If there is no error
+        {
+            qDebug() << "Received Network Reply\n";
+            qDebug() << "Here is the error: " << ErrorDescription(m_oReplyVal->error()) << "\n";
+            QByteArray m_oData = m_oReplyVal->readAll();
+            str = m_oData;
+            qDebug() << m_oData;
+        }else //there is an error
+        {
+            m_bVal = true;
+            qDebug() << "Here is the error: " << ErrorDescription(m_oReplyVal->error()) << "\n";
+        }
+        m_oReplyVal->deleteLater();
+    }else{
+        m_bVal = false;
+        qDebug() << "Error";
+        qDebug() << "Here is the error: " << ErrorDescription(m_oReplyVal->error());
+    }
+}
+
 QString ClientHttp::GetUrl(QString m_sValPath)
 {
     return m_sUrlServer+"/"+m_sValPath;
@@ -83,7 +148,7 @@ void ClientHttp::SetServer(QString m_sServerUrl)
 void ClientHttp::SetUser(QString m_sUser, QString m_sPass)
 {
     m_sUserName = m_sUser;
-    m_sPasswordUser = m_sPass;
+    m_sUserPassword = m_sPass;
 }
 
 bool ClientHttp::IsOk()
@@ -96,3 +161,23 @@ void ClientHttp::SetUrl(QString m_sSiteUrl)
     m_sUrlSite = m_sSiteUrl;
 }
 
+void ClientHttp::SetUserName(QString m_sNameUser)
+{
+    m_sUserName = m_sNameUser;
+}
+
+void ClientHttp::SetUserPassword(QString m_sPasswordUser)
+{
+    m_sUserPassword = m_sPasswordUser;
+}
+
+void ClientHttp::SetFileName(QString m_sNameFile)
+{
+    m_sFileNameCom = m_sNameFile;
+}
+
+void ClientHttp::PostFile(QString m_sUrl, QString m_sFileName)
+{
+    m_sUrlServer = m_sUrl;
+    m_sFileNameCom = m_sFileName;
+}
