@@ -6,7 +6,7 @@ ClientHttp::ClientHttp()
 
 //To connect to the server and post data(username, Password) and file
 void ClientHttp::ConnectServer()
-{
+{    
     m_oNetworkManager = new QNetworkAccessManager(this);
     QUrl m_oUrl(m_sUrlServer);
 
@@ -45,6 +45,13 @@ void ClientHttp::CommunicationChannel()
 
 void ClientHttp::UploadFileToServer()
 {
+    //Here the Hash Code Calculate
+    QString m_sResValCryptoMD5;
+    m_oHashMD5.SetInFile(m_sFileNameCom);
+    m_oHashMD5.SetOutFile("C:/Data/OutFile");
+    m_oHashMD5.CalculateCryptoMD5();
+
+
     m_oNetworkManager = new QNetworkAccessManager(this);
     QUrl m_oUrl(m_sUrlServer);
 
@@ -63,6 +70,11 @@ void ClientHttp::UploadFileToServer()
     QNetworkRequest m_oRequest = QNetworkRequest(m_oUrl);
 
     m_oRequest.setRawHeader(QString("Content-Lenght").toUtf8(), QString::number(m_bDataToSend.length()).toUtf8());
+    if(m_oHashMD5.IsOk() == true)
+    {
+        m_sResValCryptoMD5 = m_oHashMD5.GetResCryptoMD5();
+        m_oRequest.setRawHeader("MD5", m_sResValCryptoMD5.toUtf8());
+    }
 
     QEventLoop loop;
     m_oReply = m_oNetworkManager->post(m_oRequest, m_bDataToSend);

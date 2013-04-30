@@ -5,6 +5,7 @@
 #include <QFile>
 #include <QtNetwork>
 #include <QNetworkReply>
+#include "FileHash.h"
 
 class ClientHttp : public QObject
 {
@@ -28,7 +29,7 @@ public:
     void DataRetrieve(QNetworkReply *m_oReplyVal);
     bool IsOk();
     QString ErrorDescription(QNetworkReply::NetworkError m_sErr);
-
+    FileHash m_oHashMD5;
 
 private:
     QString m_sUrlServer;

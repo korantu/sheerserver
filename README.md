@@ -1,4 +1,7 @@
-sheerserver
+Reposirory for Sheer Technologies server
 ===========
 
-SheerTechnologies server
+Includes:
+
+Qt client
+Go server
