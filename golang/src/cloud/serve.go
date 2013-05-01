@@ -1,4 +1,4 @@
-package sheer
+package cloud
 
 import (
 	"io"
@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"os"
 	"fmt"
+	"time"
 )
 
 var port = "8080"
@@ -62,6 +63,12 @@ func Serve( once bool) {
 	}
 	go http.ListenAndServe(":"+port, nil)
 	<-done // If something is once.
+	time.Sleep( time.Second) // To send responses.
+
+}
+
+func Get() {
+	http.Get("http://localhost:8080/info?parameters")
 }
 
 func Main() {
