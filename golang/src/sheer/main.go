@@ -21,10 +21,47 @@ func must_not(err error) {
 	log.Fatal(err.Error())
 }
 
+func say(w io.Writer, msg string) {
+	io.WriteString(w, msg+"\n")
+	print(msg + "\n")
+}
+
+
 func read_ui() []byte {
 	str, err := ioutil.ReadFile("ui.html")
 	must_not(err)
 	return str
+}
+
+type ServeOnce struct {
+	task http.Handler
+	done chan bool
+}
+func ( s * ServeOnce ) ServeHTTP (w http.ResponseWriter, r * http.Request ) {
+	s.task.ServeHTTP(w, r)
+	s.done <- true
+};
+
+type InfoResponder struct {}
+func ( i InfoResponder ) ServeHTTP (w http.ResponseWriter, r * http.Request ) {
+	io.WriteString( w, "Request:\n")
+	say( w, "Incoming: " + r.URL.String())
+	for key, values := range r.Header {
+		for _, value := range values {
+			say( w, key + ":" + value)
+		}
+	}			
+}  
+
+func Serve( once bool) {
+	done := make( chan bool )
+	if once {
+		http.Handle("/info", &ServeOnce{InfoResponder{}, done} )
+	} else {
+		http.Handle("/info", InfoResponder{} )
+	}
+	go http.ListenAndServe(":"+port, nil)
+	<-done // If something is once.
 }
 
 func Main() {

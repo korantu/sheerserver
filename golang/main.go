@@ -5,5 +5,5 @@ import (
 )
 
 func main(){
-	sheer.Main()
+	sheer.Serve( true)
 }
