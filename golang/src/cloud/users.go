@@ -2,63 +2,41 @@ package cloud
 
 // User state
 type User struct {
-	Id int
 	Name string
 	Login string
 	Password string
 }
 
-// Requests for adding/getting users
-type Request struct{
-	TheUser User
-	Reply chan * User
-}
-
-// Interface channels
-var AddUser = make(chan * Request)
-var GetUser = make(chan * Request)
-
 // Storage
-var unused_id = 0
-var by_id = make(map[int] * User)
 var by_login = make(map[string] * User)
 
-// Machinery; Not-thread-safe.
-func add( a * User) * User {
+// Add a user
+func AddUser( a * User) * User {
 	if a.Login == "" || a.Password == "" {
 		return nil
 	}
-	a.Id = unused_id; unused_id++;
-	
-	by_id[a.Id] = a;
-	by_login[a.Login] = a;
+
+	// Copy to avoid update to the map being used
+	new_storage := make(map[string] * User)
+	for k,v := range by_login {
+		new_storage[k] = v
+	}
+
+	new_storage[a.Login] = a;
+	by_login = new_storage;
 
 	return a;
-};
+}
 
-// TODO: select
+// Get a user
+func GetUser( login string, password string) * User {
+	u, ok := by_login[ login]
+	if ! ok || u.Password != password {
+		return nil
+	}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	return u;
+}
 
 
 
