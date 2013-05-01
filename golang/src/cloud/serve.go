@@ -75,7 +75,7 @@ func authorize(w http.ResponseWriter, r *http.Request) {
 	say(w, "OK")
 }
 
-
+// TODO take out all the file dancing outside 
 func upload(w http.ResponseWriter, r *http.Request) {
 	// Main response:
 	incoming, err := ioutil.ReadAll(r.Body) // Must read body first
@@ -120,6 +120,10 @@ func upload(w http.ResponseWriter, r *http.Request) {
 	say(w, "OK")
 }
 
+// TODO
+func download(w http.ResponseWriter, r *http.Request) {
+}
+
 // Server
 func Serve() {
 	http.HandleFunc("/info", info)
@@ -149,7 +153,7 @@ func Post(point string, to_post []byte) []byte {
 	return body(resp)
 }
 
-// Convinient API
+// Convenient API
 type Identity struct {
 	Login    string
 	Password string
@@ -158,3 +162,27 @@ type Identity struct {
 func (i Identity) Authorize() string {
 	return string(Get("authorize?login=" + i.Login + "&password=" + i.Password))
 }
+
+
+func (i Identity) Upload( remote string, data []byte) string {
+	return string(Post("upload?login=" + i.Login + "&password=" + i.Password + "&file=" + remote, data))
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

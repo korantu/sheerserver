@@ -32,6 +32,8 @@ func TestSimplePostGet(t *testing.T) {
 	Must(t, strings.Contains(get_resp, "a:1|2"), "Parse multiple parameters")
 }
 
+var good_guy, bad_guy = cloud.Identity{"abc", "123"}, cloud.Identity{"bbq", "123"}
+
 func TestLogin(t *testing.T) {
 	// Raw
 	good_result := string(cloud.Get("authorize?login=important&password=7890"))
@@ -39,16 +41,21 @@ func TestLogin(t *testing.T) {
 	Must( t, good_result == "OK", "Correct user" )
 	Must( t, bad_result == "FAIL", "Wrong password")
 	// Nicer
-	good, bad := cloud.Identity{"abc", "123"}, cloud.Identity{"bbq", "123"}
-	Must( t, good.Authorize() == "OK", "Correct user" )
-	Must( t, bad.Authorize() == "FAIL", "Wrong user")
+	Must( t, good_guy.Authorize() == "OK", "Correct user" )
+	Must( t, strings.Contains(bad_guy.Authorize(), "FAIL"), "Wrong user")
 }
 
 func TestFileTransfer(t * testing.T){
 	// Raw
 	uploaded := string(cloud.Post("upload?login=important&password=7890&file=numbers.txt", []byte("12345")))
+	downloaded := string(cloud.Get("download?login=important&password=7890&file=numbers.txt"))
 	t.Log( uploaded)
+	t.Log( downloaded)
 	Must( t, uploaded == "OK", "File upload" )
+	Must( t, downloaded == "12345", "File download" )
+	// Nicer
+	Must( t, strings.Contains(bad_guy.Upload("scene.txt", []byte("Act I")), "FAIL"), "Upload by a bad guy")
+	Must( t, good_guy.Upload("scene.txt", []byte("Act I")) == "OK", "Upload")
 }
 
 func TestUsers(t *testing.T) {
