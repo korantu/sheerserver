@@ -5,6 +5,9 @@ import (
 	"time"
 )
 
+// TODO: File unused so far, refer to cloud_test.
+// Once functionality is tested, it will be moved here.
+
 func test_get() {
 	got := cloud.Get("info?a=b&c=d")
 	print("\n---get---\n" + string(got) + "\n------\n")

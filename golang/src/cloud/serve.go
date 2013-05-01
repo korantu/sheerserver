@@ -9,7 +9,13 @@ import (
 	"runtime/debug"
 )
 
+// TODO remove
 var port = "8080"
+
+// For autocomplete tests, does not usually work.
+func Ping() bool {
+	return true
+}
 
 func must_not(err error) {
 	if err == nil {
