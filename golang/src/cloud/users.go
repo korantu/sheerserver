@@ -16,6 +16,10 @@ func AddUser( a * User) * User {
 		return nil
 	}
 
+	if _, ok := by_login[a.Login]; ok {
+		return nil 
+	}
+
 	// Copy to avoid update to the map being used
 	new_storage := make(map[string] * User)
 	for k,v := range by_login {
@@ -38,6 +42,12 @@ func GetUser( login string, password string) * User {
 	return u;
 }
 
+// Test users
+func Populate() {
+	AddUser( &User{Login: "abc", Password: "123", Name: "Me"} )
+	AddUser( &User{Login: "asd", Password: "456", Name: "Him"} )
+	AddUser( &User{Login: "important", Password: "7890", Name: "Big CEO"} )
+}
 
 
 

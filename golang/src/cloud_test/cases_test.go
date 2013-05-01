@@ -8,7 +8,8 @@ import (
 )
 
 func init() {
-	print("Starting test server...\n")
+	print("Starting test server with test users...\n")
+	cloud.Populate()
 	go cloud.Serve()
 	time.Sleep(100 * time.Millisecond)
 	print("Done.\n")
@@ -22,7 +23,6 @@ func Must(t *testing.T, be_true bool, reason string) {
 }
 
 func TestSimplePostGet(t *testing.T) {
-	cloud.Ping()
 	post_resp := string(cloud.Post("info", []byte("ABC123")))
 	get_resp := string(cloud.Get("info?a=1&a=2&b=3"))
 	t.Log(post_resp)
@@ -32,9 +32,41 @@ func TestSimplePostGet(t *testing.T) {
 	Must(t, strings.Contains(get_resp, "a:1|2"), "Parse multiple parameters")
 }
 
-func TestUsers(t *testing.T) {
-	u := cloud.User{Login: "abc", Password: "123", Name: "Me"}
-	cloud.AddUser(&u)
-	u1 := cloud.GetUser("abc", "123")
-	Must(t, u.Name == u1.Name, "Get the same user")
+func TestLogin(t *testing.T) {
+	// Raw
+	good_result := string(cloud.Get("authorize?login=important&password=7890"))
+	bad_result := string(cloud.Get("authorize?login=important&password=789"))
+	Must( t, good_result == "OK", "Correct user" )
+	Must( t, bad_result == "FAIL", "Wrong password")
+	// Nicer
+	good, bad := cloud.Identity{"abc", "123"}, cloud.Identity{"bbq", "123"}
+	Must( t, good.Authorize() == "OK", "Correct user" )
+	Must( t, bad.Authorize() == "FAIL", "Wrong user")
 }
+
+func TestFileTransfer(t * testing.T){
+	// Raw
+	uploaded := string(cloud.Post("upload?login=important&password=7890?file=numbers.txt", []byte("12345")))
+	t.Log( uploaded)
+	Must( t, uploaded == "OK", "File upload" )
+}
+
+func TestUsers(t *testing.T) {
+	ceo := cloud.GetUser("important", "7890")
+	Must(t, ceo.Name == "Big CEO", "Get the user")
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

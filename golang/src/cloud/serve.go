@@ -17,6 +17,7 @@ func Ping() bool {
 	return true
 }
 
+// Niceties
 func must_not(err error) {
 	if err == nil {
 		return
@@ -25,9 +26,8 @@ func must_not(err error) {
 	log.Fatal(err.Error())
 }
 
-type InfoResponder struct{}
-
-func (i InfoResponder) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+// Handlers
+func info(w http.ResponseWriter, r *http.Request) {
 
 	say := func(msg string) {
 		io.WriteString(w, msg)
@@ -54,9 +54,34 @@ func (i InfoResponder) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	list_params(r.URL.Query())
 	say("Headers:\n")
 	list_params(r.Header)
-	io.WriteString(w, "Input:--["+string(incoming)+"]--\n")
+	say("Input:--[" + string(incoming) + "]--\n")
 }
 
+func authorize(w http.ResponseWriter, r *http.Request) {
+	say := func(msg string) {
+		io.WriteString(w, msg)
+	}
+
+	param := r.URL.Query()
+	login := param["login"]
+	password := param["password"]
+	u := GetUser( login[0], password[0])
+	if u != nil {
+		say( "OK")
+	} else {
+		say( "FAIL")
+	}
+}
+
+// Server
+func Serve() {
+	http.HandleFunc("/info", info)
+	http.HandleFunc("/authorize", authorize)
+	go http.ListenAndServe(":"+port, nil)
+
+}
+
+// Client
 func body(resp *http.Response) []byte {
 	data, err := ioutil.ReadAll(resp.Body)
 	must_not(err)
@@ -76,8 +101,12 @@ func Post(point string, to_post []byte) []byte {
 	return body(resp)
 }
 
-func Serve() {
-	http.Handle("/info", InfoResponder{})
-	go http.ListenAndServe(":"+port, nil)
+// Convinient API
+type Identity struct {
+	Login    string
+	Password string
+}
 
+func (i Identity) Authorize() string {
+	return string(Get("authorize?login=" + i.Login + "&password=" + i.Password))
 }
