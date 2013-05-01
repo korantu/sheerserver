@@ -46,7 +46,7 @@ func TestLogin(t *testing.T) {
 
 func TestFileTransfer(t * testing.T){
 	// Raw
-	uploaded := string(cloud.Post("upload?login=important&password=7890?file=numbers.txt", []byte("12345")))
+	uploaded := string(cloud.Post("upload?login=important&password=7890&file=numbers.txt", []byte("12345")))
 	t.Log( uploaded)
 	Must( t, uploaded == "OK", "File upload" )
 }

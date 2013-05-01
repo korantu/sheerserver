@@ -6,7 +6,10 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
+	"path"
 	"runtime/debug"
+	"strings"
 )
 
 // TODO remove
@@ -26,23 +29,23 @@ func must_not(err error) {
 	log.Fatal(err.Error())
 }
 
+func say(w io.Writer, msg string) {
+	io.WriteString(w, msg)
+}
+
 // Handlers
 func info(w http.ResponseWriter, r *http.Request) {
 
-	say := func(msg string) {
-		io.WriteString(w, msg)
-	}
-
 	list_params := func(in map[string][]string) {
 		for key, values := range in {
-			say(key + ":")
+			say(w, key+":")
 			for i, value := range values {
 				if i != 0 {
-					say("|")
+					say(w, "|")
 				}
-				say(value)
+				say(w, value)
 			}
-			say("\n")
+			say(w, "\n")
 		}
 	}
 
@@ -50,33 +53,78 @@ func info(w http.ResponseWriter, r *http.Request) {
 	incoming, err := ioutil.ReadAll(r.Body) // Must read body first
 	must_not(err)
 	in_url := r.URL.String()
-	say("Request to: " + in_url + " \n")
+	say(w, "Request to: "+in_url+" \n")
 	list_params(r.URL.Query())
-	say("Headers:\n")
+	say(w, "Headers:\n")
 	list_params(r.Header)
-	say("Input:--[" + string(incoming) + "]--\n")
+	say(w, "Input:--["+string(incoming)+"]--\n")
+}
+
+func user(param map[string][]string) *User {
+	login := param["login"]
+	password := param["password"]
+	return GetUser(login[0], password[0])
 }
 
 func authorize(w http.ResponseWriter, r *http.Request) {
-	say := func(msg string) {
-		io.WriteString(w, msg)
+	u := user(r.URL.Query())
+	if u == nil {
+		say(w, "FAIL")
+		return
+	}
+	say(w, "OK")
+}
+
+
+func upload(w http.ResponseWriter, r *http.Request) {
+	// Main response:
+	incoming, err := ioutil.ReadAll(r.Body) // Must read body first
+	if err != nil {
+		say( w, "FAIL:" + err.Error())
+		return
 	}
 
-	param := r.URL.Query()
-	login := param["login"]
-	password := param["password"]
-	u := GetUser( login[0], password[0])
-	if u != nil {
-		say( "OK")
-	} else {
-		say( "FAIL")
+	q := r.URL.Query()
+	u := user(q)
+	if u == nil {
+		say(w, "FAIL")
+		return
 	}
+	file, ok := q["file"]
+	if !ok {
+		say(w, "FAIL: File name is not specified")
+		return
+	}
+	full_name := path.Join(u.Login, file[0])
+	dir := path.Dir(full_name)
+	if strings.Contains(dir, "..") {
+		say(w, "FAIL: .. is not allowed in the path")
+		return
+	}
+	err = os.MkdirAll(dir, 0777)
+	if err != nil {
+		say(w, "FAIL:"+err.Error())
+		return
+	}
+	new_file, err := os.Create(full_name)
+	if err != nil {
+		say(w, "FAIL:"+err.Error())
+		return
+	}
+	defer new_file.Close()
+	_, err = new_file.Write(incoming)
+	if err != nil {
+		say(w, "FAIL:"+err.Error())
+		return
+	}
+	say(w, "OK")
 }
 
 // Server
 func Serve() {
 	http.HandleFunc("/info", info)
 	http.HandleFunc("/authorize", authorize)
+	http.HandleFunc("/upload", upload)
 	go http.ListenAndServe(":"+port, nil)
 
 }
