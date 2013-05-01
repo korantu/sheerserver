@@ -9,7 +9,7 @@ import (
 	"io/ioutil"
 	"os"
 	"fmt"
-	"time"
+	"bytes"
 )
 
 var port = "8080"
@@ -22,53 +22,48 @@ func must_not(err error) {
 	log.Fatal(err.Error())
 }
 
-func say(w io.Writer, msg string) {
-	io.WriteString(w, msg+"\n")
-	print(msg + "\n")
-}
-
-
 func read_ui() []byte {
 	str, err := ioutil.ReadFile("ui.html")
 	must_not(err)
 	return str
 }
 
-type ServeOnce struct {
-	task http.Handler
-	done chan bool
-}
-func ( s * ServeOnce ) ServeHTTP (w http.ResponseWriter, r * http.Request ) {
-	s.task.ServeHTTP(w, r)
-	s.done <- true
-};
-
 type InfoResponder struct {}
 func ( i InfoResponder ) ServeHTTP (w http.ResponseWriter, r * http.Request ) {
-	io.WriteString( w, "Request:\n")
-	say( w, "Incoming: " + r.URL.String())
+	incoming, err := ioutil.ReadAll(r.Body)
+	must_not( err)
+	io.WriteString( w, "Request to: " + r.URL.String() + " \n")
 	for key, values := range r.Header {
 		for _, value := range values {
-			say( w, key + ":" + value)
+			io.WriteString(w, key + ":" + value + "\n")
 		}
-	}			
+	}
+	io.WriteString(w, "Input:--[" + string(incoming) + "]--\n")
 }  
 
-func Serve( once bool) {
-	done := make( chan bool )
-	if once {
-		http.Handle("/info", &ServeOnce{InfoResponder{}, done} )
-	} else {
-		http.Handle("/info", InfoResponder{} )
-	}
+func Serve() {
+	http.Handle("/info", InfoResponder{} )
 	go http.ListenAndServe(":"+port, nil)
-	<-done // If something is once.
-	time.Sleep( time.Second) // To send responses.
 
 }
 
-func Get() {
-	http.Get("http://localhost:8080/info?parameters")
+func body( resp * http.Response) []byte{
+	data, err := ioutil.ReadAll(resp.Body)
+	must_not( err)
+	resp.Body.Close()
+	return data
+}
+
+func Get( point string) []byte {
+	resp, err := http.Get("http://localhost:8080/" + point)
+	must_not( err)
+	return body( resp)
+}
+
+func Post( point string, to_post []byte) []byte{
+	resp, err := http.Post("http://localhost:8080/" + point, "application/octet-stream", bytes.NewReader( to_post))
+	must_not( err)
+	return body( resp)
 }
 
 func Main() {
