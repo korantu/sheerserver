@@ -209,6 +209,10 @@ func (i Identity) Upload( remote string, data []byte) string {
 	return string(Post("upload?login=" + i.Login + "&password=" + i.Password + "&file=" + remote, data))
 }
 
+func (i Identity) Download( remote string) []byte {
+	return Get("download?login=" + i.Login + "&password=" + i.Password + "&file=" + remote)
+}
+
 
 
 

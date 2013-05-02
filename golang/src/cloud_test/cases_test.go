@@ -55,7 +55,9 @@ func TestFileTransfer(t * testing.T){
 	Must( t, downloaded == "12345", "File download" )
 	// Nicer
 	Must( t, strings.Contains(bad_guy.Upload("scene.txt", []byte("Act I")), "FAIL"), "Upload by a bad guy")
+	// Flow
 	Must( t, good_guy.Upload("scene.txt", []byte("Act I")) == "OK", "Upload")
+	Must( t, string(good_guy.Download("scene.txt")) == "Act I", "Download")
 }
 
 func TestUsers(t *testing.T) {
