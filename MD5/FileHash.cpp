@@ -28,6 +28,8 @@ void FileHash::CalculateCryptoMD5()
                 m_oOutFile.open(QIODevice::WriteOnly);//If the file doesn't exist it will be created
                 QTextStream m_oWriteFile(&m_oOutFile);
                 m_oWriteFile << m_oHashMD5.toHex() << "\n";
+				m_sResCryptoMD5 = QString(m_oHashMD5.toHex());
+                m_bIsOk = true;
                 m_oOutFile.close();
             }
         } else //if Infile can't be opened
@@ -81,4 +83,14 @@ QString FileHash::ErrorCause()
 void FileHash::SetError(QString err){
         m_bIsOk = false;
         m_sError = err;
+}
+
+QString FileHash::GetResCryptoMD5()
+{
+    return m_sResCryptoMD5;
+}
+
+void FileHash::SetResCryptoMD5(QString m_sValResCrytoMD5)
+{
+    m_sResCryptoMD5 = m_sValResCrytoMD5;
 }
