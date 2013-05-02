@@ -53,6 +53,18 @@ bool testFileUpload()
     return test2.IsOk();
 }
 
+bool testReadDir()
+{
+    ClientHttp testRead;
+    testRead.ReadFileDir("C:/Data");
+    if(testRead.IsOk() == true){
+        qDebug() << "It worked.\n";
+    } else {
+        qDebug() << "Problem \n";
+    }
+    return testRead.IsOk();
+}
+
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
@@ -60,7 +72,8 @@ int main(int argc, char *argv[])
 
     //qDebug() << testHttp();//communication to server
     //qDebug() << testLog();// send data to server
-    qDebug() << testFileUpload();
+    //qDebug() << testFileUpload();
+    qDebug() << testReadDir();
     
     return a.exec();
 }

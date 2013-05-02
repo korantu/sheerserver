@@ -6,6 +6,7 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QPlainTextEdit>
+#include <QDir>
 
 class FenClientHttp : public QMainWindow
 {

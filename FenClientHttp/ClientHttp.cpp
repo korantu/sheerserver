@@ -193,3 +193,24 @@ void ClientHttp::PostFile(QString m_sUrl, QString m_sFileName)
     m_sUrlServer = m_sUrl;
     m_sFileNameCom = m_sFileName;
 }
+
+void ClientHttp::ReadFileDir(QString m_sDirPath)
+{
+    QDir m_oDirectory(m_sDirPath);
+    if(!m_oDirectory.exists()){
+        m_bVal = false;
+    }
+    else{
+        m_bVal = true;
+        m_oDirectory.setFilter(QDir::Files | QDir::Hidden | QDir::NoSymLinks);
+        m_oDirectory.setSorting(QDir::Size | QDir::Reversed);
+
+        QFileInfoList m_oFileInfoList = m_oDirectory.entryInfoList();
+
+        for(int i = 0; i < m_oFileInfoList.size(); ++i){
+            QFileInfo m_oFileInfo = m_oFileInfoList.at(i);
+            qDebug() << qPrintable(QString("%1 %2").arg(m_oFileInfo.size(), 10 ).arg(m_oFileInfo.fileName()));
+            qDebug() << "\n";
+        }
+    }
+}

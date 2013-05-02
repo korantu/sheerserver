@@ -6,6 +6,7 @@
 #include <QtNetwork>
 #include <QNetworkReply>
 #include "FileHash.h"
+#include <QDir>
 
 class ClientHttp : public QObject
 {
@@ -30,6 +31,7 @@ public:
     bool IsOk();
     QString ErrorDescription(QNetworkReply::NetworkError m_sErr);
     FileHash m_oHashMD5;
+    void ReadFileDir(QString m_sDirPath);
 
 private:
     QString m_sUrlServer;
