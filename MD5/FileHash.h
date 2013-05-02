@@ -19,6 +19,8 @@ public:
     bool IsOk();
     QString ErrorCause();
     void GetErr(QString m_sErrString,QFileDevice::FileError m_oFileErr);
+    QString GetResCryptoMD5();
+    void SetResCryptoMD5(QString m_sValResCrytoMD5);
 
 private:
     void SetError(QString);
@@ -26,6 +28,7 @@ private:
     QString m_sError;
     QString m_sInFile;
     QString m_sOutFile;
+	QString m_sResCryptoMD5;
 };
 
 #endif // FILEHASH_H
