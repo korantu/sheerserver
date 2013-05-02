@@ -63,6 +63,9 @@ func info(w http.ResponseWriter, r *http.Request) {
 func user(param map[string][]string) *User {
 	login := param["login"]
 	password := param["password"]
+	if len(login) == 0 || len(password) == 0 {
+		return nil
+	}
 	return GetUser(login[0], password[0])
 }
 
@@ -170,7 +173,7 @@ func Serve() {
 	http.HandleFunc("/authorize", authorize)
 	http.HandleFunc("/upload", upload)
 	http.HandleFunc("/download", download)
-	go http.ListenAndServe(":"+port, nil)
+	http.ListenAndServe(":"+port, nil)
 
 }
 
@@ -212,22 +215,3 @@ func (i Identity) Upload( remote string, data []byte) string {
 func (i Identity) Download( remote string) []byte {
 	return Get("download?login=" + i.Login + "&password=" + i.Password + "&file=" + remote)
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
