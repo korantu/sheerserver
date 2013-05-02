@@ -122,6 +122,46 @@ func upload(w http.ResponseWriter, r *http.Request) {
 
 // TODO
 func download(w http.ResponseWriter, r *http.Request) {
+	// Main response:
+	_, err := ioutil.ReadAll(r.Body) // Must read body first
+	if err != nil {
+		say( w, "FAIL:" + err.Error())
+		return
+	}
+
+	q := r.URL.Query()
+	u := user(q)
+	if u == nil {
+		say(w, "FAIL")
+		return
+	}
+	file, ok := q["file"]
+	if !ok {
+		say(w, "FAIL: File name is not specified")
+		return
+	}
+	full_name := path.Join(u.Login, file[0])
+	if strings.Contains( full_name, "..") {
+		say(w, "FAIL: No names containing .. are allowed")
+		return
+	}
+	info, err := os.Stat( full_name)
+	if err != nil {
+		say(w, "FAIL:" + err.Error())
+		return
+	}
+	if info.IsDir() {
+		say(w, "FAIL: Unable to download directory;")
+		return
+	}
+	
+	data, err := ioutil.ReadFile( full_name)
+	if err != nil {
+		say(w, "FAIL:" + err.Error())
+		return
+	}
+	// All seem okay.
+	w.Write( data)
 }
 
 // Server
@@ -129,6 +169,7 @@ func Serve() {
 	http.HandleFunc("/info", info)
 	http.HandleFunc("/authorize", authorize)
 	http.HandleFunc("/upload", upload)
+	http.HandleFunc("/download", download)
 	go http.ListenAndServe(":"+port, nil)
 
 }
