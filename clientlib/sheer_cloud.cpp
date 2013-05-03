@@ -1,6 +1,7 @@
 #include "sheer_cloud.h"
 
 #include <QDebug>
+#include <map>
 
 // Header
 class RealSheerCloud: public SheerCloud {
@@ -36,13 +37,16 @@ SheerCloud::Result RealSheerCloud::Authorize(QString login, QString password){
   return OK;
 };
 
-SheerCloud::Result RealSheerCloud::Upload(QString, QByteArray){
+// Testing
+std::map<QString, QByteArray> minicloud;
+
+SheerCloud::Result RealSheerCloud::Upload(QString file, QByteArray data){
+  minicloud[file] = data;
   return OK;
 };
 
-SheerCloud::Result RealSheerCloud::Download( QString,  QByteArray & out){
-  QByteArray result("123");
-  out = result;
+SheerCloud::Result RealSheerCloud::Download( QString file,  QByteArray & out){
+  out = minicloud[ file];
   return OK;
 };
 
