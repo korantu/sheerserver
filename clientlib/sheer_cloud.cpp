@@ -1,27 +1,26 @@
 #include "sheer_cloud.h"
 
-#include <QDebug>
-#include <map>
-
 // Header
 class RealSheerCloud: public SheerCloud {
 public:
   RealSheerCloud();
   virtual ~RealSheerCloud();
 
-  virtual Result Authorize( QString login, QString password);
-  virtual Result Upload( QString, QByteArray);
-  virtual Result Download( QString, QByteArray & out);
+  virtual bool Authorize( QString location, QString login, QString password);
+  virtual bool Upload( QString, const QByteArray &);
+  virtual bool Download( QString, QByteArray & out);
+
+  virtual QString lastError();
 
 private:
+  QString m_location;
   QString m_login;
   QString m_password;
+  QString m_lastError;
 };
 
-// Local tools
-void Log(QString msg){
-  qDebug() << "[" << msg << "]\n";
-}
+#include <QDebug>
+#include <map>
 
 // Implementation
 RealSheerCloud::RealSheerCloud(){
@@ -30,25 +29,34 @@ RealSheerCloud::RealSheerCloud(){
 RealSheerCloud::~RealSheerCloud(){
 };
 
-SheerCloud::Result RealSheerCloud::Authorize(QString login, QString password){
+bool RealSheerCloud::Authorize(QString location, QString login, QString password){
+  m_location = location;
   m_login = login;
   m_password = password;
-  Log("we are in");
-  return OK;
+  return true;
 };
 
 // Testing
 std::map<QString, QByteArray> minicloud;
 
-SheerCloud::Result RealSheerCloud::Upload(QString file, QByteArray data){
+bool RealSheerCloud::Upload(QString file, const QByteArray & data){
   minicloud[file] = data;
-  return OK;
+  return true;
 };
 
-SheerCloud::Result RealSheerCloud::Download( QString file,  QByteArray & out){
+bool RealSheerCloud::Download( QString file,  QByteArray & out){
+  if ( minicloud.find( file) == minicloud.end()) {
+    m_lastError = "File not found in the cloud";
+    return false;
+  };
   out = minicloud[ file];
-  return OK;
+  return true;
 };
+
+QString RealSheerCloud::lastError(){
+  return m_lastError;
+};
+
 
 // API object
 RealSheerCloud connection;

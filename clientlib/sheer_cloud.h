@@ -6,14 +6,11 @@
 
 class SheerCloud {
  public:
-  typedef enum {
-    OK,
-    FAIL
-  } Result;
+  virtual bool Authorize(QString location, QString login, QString password) = 0;
+  virtual bool Upload(QString, const QByteArray &) = 0;
+  virtual bool Download(QString, QByteArray &) = 0;
 
-  virtual Result Authorize(QString login, QString password) = 0;
-  virtual Result Upload(QString, QByteArray) = 0;
-  virtual Result Download(QString, QByteArray &) = 0;
+  virtual QString lastError() = 0;
 };
 
 SheerCloud * GetSheerCloud();
