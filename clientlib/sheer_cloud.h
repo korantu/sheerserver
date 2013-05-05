@@ -13,6 +13,7 @@ class SheerCloud {
   virtual QString lastError() = 0;
 };
 
-SheerCloud * GetSheerCloud();
-
+// Various implementations:
+SheerCloud * GetSheerCloudHttp();
+SheerCloud * GetSheerCloudStub();
 #endif

@@ -8,9 +8,13 @@
 
 class TestSheerCloud: public QObject {
   Q_OBJECT
+
+  void Basics(SheerCloud * cloud);
+
     private slots:
   void VerifyTesting();
-  void Basics();
+  void TestStub();
+  void TestHttp();
 };
 
 

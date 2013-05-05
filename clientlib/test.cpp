@@ -10,13 +10,25 @@ const char * str(QString in){
   return in.toStdString().c_str();
 }
 
-void TestSheerCloud::Basics() {
+void TestSheerCloud::Basics( SheerCloud * cloud ) {
   QByteArray out;
-  SheerCloud * cloud = GetSheerCloud();
-
   QVERIFY2(cloud->Authorize("neverland", "big", "boss"), str( cloud->lastError()));
   QVERIFY2(cloud->Upload("file1.txt", "123"), str( cloud->lastError()));
-  QVERIFY2(cloud->Download("file2.txt", out), str( cloud->lastError()));
+  bool was_downloaded = cloud->Download("file1.txt", out);
+  QVERIFY2(was_downloaded && out == "123" , str( cloud->lastError()));
+  QVERIFY2(! cloud->Download("file2.txt", out), "File must not be found.");
 }
+
+void TestSheerCloud::TestStub(){
+  Basics( GetSheerCloudStub() );
+};
+
+void TestSheerCloud::TestHttp(){
+  //  Basics( GetSheerCloudHttp() );
+  SheerCloud * cloud = GetSheerCloudHttp();
+  QVERIFY2(false, "TODO: Authorization");
+  QVERIFY(cloud->Authorize("http://localhost:8080", "abc", "123"));
+};
+
 
 QTEST_MAIN(TestSheerCloud)
