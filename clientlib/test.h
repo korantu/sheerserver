@@ -13,5 +13,4 @@ class TestSheerCloud: public QObject {
   void Basics();
 };
 
-
 #endif //  __test_h__

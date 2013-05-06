@@ -12,7 +12,7 @@ const char * str(QString in){
 
 void TestSheerCloud::Basics() {
   QByteArray out;
-  SheerCloud * cloud = GetSheerCloud();
+  SheerCloud * cloud = GetSheerCloudStub();
 
   QVERIFY2(cloud->Authorize("neverland", "big", "boss"), str( cloud->lastError()));
   QVERIFY2(cloud->Upload("file1.txt", "123"), str( cloud->lastError()));

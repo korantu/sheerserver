@@ -7,8 +7,10 @@ TARGET =
 DEPENDPATH += .
 INCLUDEPATH += .
 
-CONFIG += console qtestlib
+CONFIG += console qtestlib 
+
+QT += network
 
 # Input
 HEADERS += sheer_cloud.h test.h
-SOURCES += sheer_cloud.cpp test.cpp
+SOURCES += sheer_cloud_stub.cpp sheer_cloud_http.cpp test.cpp
