@@ -5,8 +5,13 @@
 #include <QtNetwork/QNetworkReply>
 //#include <QtNetwork/QUrl>
 // Header
+
+#include <QTest> // For QSleep
+
 class SheerCloudHttp: public SheerCloud {
+
 public:
+
   SheerCloudHttp();
   virtual ~SheerCloudHttp();
 
@@ -22,7 +27,7 @@ private:
   QString m_password;
   QString m_lastError;
 
-  QNetworkAccessManager m_network;
+  QNetworkAccessManager * m_network;
   QNetworkReply * m_reply;				 
 
 private slots:
@@ -35,13 +40,19 @@ private slots:
 // Implementation
 SheerCloudHttp::SheerCloudHttp(){
   m_reply = NULL;
+  m_network = new QNetworkAccessManager();
+  /*  connect( m_network, SIGNAL(finished(QNetworkReply*)),
+	  this, SLOT(finished(QNetworkReply*)));
+  */
 };
 
 SheerCloudHttp::~SheerCloudHttp(){
+  delete m_network;
 };
 
 void SheerCloudHttp::finish(QNetworkReply * reply){
   m_reply = reply;
+  qDebug() << "Got reply!!!";
 }
 
 bool SheerCloudHttp::Authorize(QString location, QString login, QString password){
@@ -49,13 +60,23 @@ bool SheerCloudHttp::Authorize(QString location, QString login, QString password
   m_login = login;
   m_password = password;
 
-  QNetworkRequest req( QUrl( location + "/authorize?login=" + m_login + "&password=" + m_password ));
-  m_network.get( req);
-  while( ! m_reply ) {
-  };
+  QString where = location + "/authorize?login=" + m_login + "&password=" + m_password;
+
+  qDebug() << "Attempting to authorize: " << where;
+
+  m_reply = m_network->get( QNetworkRequest( QUrl( where )));
+
+  QTest::qSleep(1000);
+
+  if ( ! m_reply->error() ) {
+    qDebug() << "Connection succeeded";
+  } else {
+    qDebug() << "Connection failed";
+  }
+
   qDebug() << m_reply->readAll();
   
-  return true;
+  return m_reply->readAll() == "OK";
 };
 
 // Testing

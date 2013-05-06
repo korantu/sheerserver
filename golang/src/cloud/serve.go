@@ -70,6 +70,7 @@ func user(param map[string][]string) *User {
 }
 
 func authorize(w http.ResponseWriter, r *http.Request) {
+	print("Authorizing\n");
 	u := user(r.URL.Query())
 	if u == nil {
 		say(w, "FAIL")
@@ -80,6 +81,7 @@ func authorize(w http.ResponseWriter, r *http.Request) {
 
 // TODO take out all the file dancing outside 
 func upload(w http.ResponseWriter, r *http.Request) {
+	print("Uploading\n");
 	// Main response:
 	incoming, err := ioutil.ReadAll(r.Body) // Must read body first
 	if err != nil {
@@ -123,8 +125,9 @@ func upload(w http.ResponseWriter, r *http.Request) {
 	say(w, "OK")
 }
 
-// TODO
+// TODO Refactor
 func download(w http.ResponseWriter, r *http.Request) {
+	print("Downloading\n");
 	// Main response:
 	_, err := ioutil.ReadAll(r.Body) // Must read body first
 	if err != nil {

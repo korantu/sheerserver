@@ -11,6 +11,7 @@ class TestSheerCloud: public QObject {
     private slots:
   void VerifyTesting();
   void Basics();
+  void HttpBasics();
 };
 
 #endif //  __test_h__
