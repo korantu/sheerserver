@@ -34,8 +34,10 @@ void FenClientHttp::chargerFiles()
         ui->m_oShowFiles->setItem(m_nRow, 0, m_oFileNameItem);
         ui->m_oShowFiles->setItem(m_nRow, 1, m_oSizeItem);
     }
-    connect(ui->m_oShowFiles, SIGNAL(cellDoubleClicked(int,int)),
-            this, SLOT(openFileOfItem(int,int)));
+    /*connect(ui->m_oShowFiles, SIGNAL(cellDoubleClicked(int,int)),
+            this, SLOT(openFileOfItem(int,int)));*/
+    connect(ui->m_oShowFiles, SIGNAL(cellActivated(int,int)),
+            this, SLOT(sendFileToServer(int,int)));
 }
 
 void FenClientHttp::adjustGoButton()
@@ -72,8 +74,10 @@ void FenClientHttp::createFilesTable()
 
     ui->m_oShowFiles->setShowGrid(false);
 
+    /*connect(ui->m_oShowFiles, SIGNAL(cellActivated(int,int)),
+            this, SLOT(openFileOfItem(int,int)));*/
     connect(ui->m_oShowFiles, SIGNAL(cellActivated(int,int)),
-            this, SLOT(openFileOfItem(int,int)));
+            this, SLOT(sendFileToServer(int,int)));
 }
 
 void FenClientHttp::openFileOfItem(int row, int /*column */)
@@ -85,7 +89,12 @@ void FenClientHttp::openFileOfItem(int row, int /*column */)
     QDesktopServices::openUrl(QUrl::fromLocalFile(m_oCurrentDir.absoluteFilePath(m_oItem->text())));
 }
 
-void FenClientHttp::sendFileToServer()
+void FenClientHttp::sendFileToServer(int row, int /*column */)
 {
+    QTableWidgetItem *m_oItem = ui->m_oShowFiles->item(row, 0);
 
+    QDir m_oCurrentDir = QDir(ui->m_oFileDirectoryLineEdit->text());
+
+    m_oClient.PostFile("http://localhost:8080/info", m_oCurrentDir.absoluteFilePath(m_oItem->text()));
+    m_oClient.UploadFileToServer();
 }

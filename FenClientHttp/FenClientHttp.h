@@ -11,6 +11,7 @@
 #include <QDesktopServices>
 #include <QGridLayout>
 #include <QWidget>
+#include "ClientHttp.h"
 
 
 namespace Ui {
@@ -33,10 +34,11 @@ public slots:
     void inputPassword();
     void inputPath();
     void openFileOfItem(int row, int);
-    //void sendFileToServer();
+    void sendFileToServer(int row, int);
 
 private:
     Ui::Form *ui;
+    ClientHttp m_oClient;
 };
 
 #endif // FENCLIENTHTTP_H
