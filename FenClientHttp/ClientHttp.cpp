@@ -68,12 +68,14 @@ void ClientHttp::UploadFileToServer()
     m_bDataToSend.append("--" + bound + "--\r\n");
 
     QNetworkRequest m_oRequest = QNetworkRequest(m_oUrl);
+    m_oRequest.setHeader(QNetworkRequest::ContentTypeHeader,QVariant("application/x-www-form-urlencoded"));
 
     m_oRequest.setRawHeader(QString("Content-Lenght").toUtf8(), QString::number(m_bDataToSend.length()).toUtf8());
     if(m_oHashMD5.IsOk() == true)
     {
         m_sResValCryptoMD5 = m_oHashMD5.GetResCryptoMD5();
         m_oRequest.setRawHeader("MD5", m_sResValCryptoMD5.toUtf8());
+        m_oRequest.setRawHeader("FileName",m_sFileNameCom.toUtf8());
     }
 
     QEventLoop loop;

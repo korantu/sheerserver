@@ -12,12 +12,20 @@ TARGET = FenClientHttp
 TEMPLATE = app
 
 INCLUDEPATH += C:/Users/sheerServer/Projets/Qt/FileHash
+#DEPENDPATH += C:/Users/sheerServer/Projets/Qt/FileHash-build-Desktop_Qt_5_0_1_MSVC2010_32bit-Debug/debug
 LIBS+=  -LC:/Users/sheerServer/Projets/Qt/FileHash-build-Desktop_Qt_5_0_1_MSVC2010_32bit-Debug/debug -lFileHash
 
 
 SOURCES += main.cpp\
         FenClientHttp.cpp \
-    ClientHttp.cpp
+    ClientHttp.cpp \
+    sheer_cloud.cpp
+
 
 HEADERS  += FenClientHttp.h \
-    ClientHttp.h
+    ClientHttp.h \
+    sheer_cloud.h
+
+FORMS += \
+    form.ui
+

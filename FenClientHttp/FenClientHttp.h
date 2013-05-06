@@ -6,30 +6,37 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QPlainTextEdit>
+#include <QTableWidget>
+#include <QDir>
+#include <QDesktopServices>
+#include <QGridLayout>
+#include <QWidget>
 
-class FenClientHttp : public QMainWindow
+
+namespace Ui {
+class Form;
+}
+
+class FenClientHttp : public QWidget
 {
     Q_OBJECT
     
 public:
     FenClientHttp(QWidget *parent = 0);
+    //explicit FenClientHttp(QWidget *parent = 0);
     ~FenClientHttp();
+    void createFilesTable();
 
 public slots:
     void chargerFiles();
     void adjustGoButton();
     void inputPassword();
     void inputPath();
+    void openFileOfItem(int row, int);
+    //void sendFileToServer();
 
 private:
-    QLabel *m_oUserNameLabel;
-    QLineEdit *m_oUserNameLineEdit;
-    QLabel *m_oPasswordLabel;
-    QLineEdit *m_oPasswordLineEdit;
-    QLabel *m_oFileDirectoryLabel;
-    QLineEdit *m_oFileDirectoryLineEdit;
-    QPushButton *m_oGoPushButton;
-    QPlainTextEdit *m_oShowFiles;
+    Ui::Form *ui;
 };
 
 #endif // FENCLIENTHTTP_H

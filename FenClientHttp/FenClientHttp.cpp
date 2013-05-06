@@ -1,77 +1,91 @@
 #include "FenClientHttp.h"
+#include "ui_form.h"
+#include <QDebug>
 
-FenClientHttp::FenClientHttp(QWidget *parent)
-    : QMainWindow(parent)
+FenClientHttp::FenClientHttp(QWidget *parent) :
+    QWidget(parent), ui(new Ui::Form)
 {
-    m_oUserNameLabel = new QLabel(tr("User Name"));
-    m_oUserNameLineEdit = new QLineEdit;
-    m_oUserNameLabel->setBuddy(m_oUserNameLineEdit);
-
-    connect(m_oUserNameLineEdit, SIGNAL(returnPressed()), SLOT(inputPassword()));
-
-    m_oPasswordLabel = new QLabel(tr("Password"));
-    m_oPasswordLineEdit = new QLineEdit;
-    m_oPasswordLabel->setBuddy(m_oPasswordLineEdit);
-
-    connect(m_oPasswordLineEdit, SIGNAL(returnPressed()), SLOT(inputPath()));
-
-    m_oFileDirectoryLabel = new QLabel(tr("Enter the file/directory Path"));
-    m_oFileDirectoryLineEdit = new QLineEdit;
-    m_oFileDirectoryLabel->setBuddy(m_oFileDirectoryLineEdit);
-
-    connect(m_oFileDirectoryLineEdit, SIGNAL(returnPressed()), SLOT(adjustGoButton()));
-
-    m_oGoPushButton = new QPushButton("Go");
-
-    m_oShowFiles = new QPlainTextEdit(this);
-    m_oShowFiles->setEnabled(false);
-
-    connect(m_oGoPushButton, SIGNAL(clicked()), this, SLOT(chargerFiles()));
+    ui->setupUi(this);
+    connect(ui->m_oUserNameLineEdit, SIGNAL(returnPressed()), SLOT(inputPassword()));
+    connect(ui->m_oFileDirectoryLineEdit, SIGNAL(returnPressed()), SLOT(adjustGoButton()));
+    connect(ui->m_oGoPushButton, SIGNAL(clicked()), this, SLOT(chargerFiles()));
 }
 
 void FenClientHttp::chargerFiles()
 {
-    m_oShowFiles->setEnabled(true);
-    QDir dir(m_oFileDirectoryLineEdit->text());
-    dir.setFilter(QDir::Files | QDir::Hidden | QDir::NoSymLinks);
-    dir.setSorting(QDir::Size | QDir::Reversed);
+    //createFilesTable();
+    QDir m_oFileDir(ui->m_oFileDirectoryLineEdit->text());
+    m_oFileDir.setFilter(QDir::Files | QDir::Hidden | QDir::NoSymLinks);
+    m_oFileDir.setSorting(QDir::Size | QDir::Reversed);
 
-    QFileInfoList list = dir.entryInfoList();
-    //std::cout << "     Bytes Filename" << std::endl;
-    m_oShowFiles->appendPlainText("Bytes FileName");
-    for (int i = 0; i < list.size(); ++i) {
-        QFileInfo fileInfo = list.at(i);
-        /*std::cout << qPrintable(QString("%1 %2").arg(fileInfo.size(), 10)
-                                                .arg(fileInfo.fileName()));
-        std::cout << std::endl;*/
-        //Insert into the box the list of the files
+    QFileInfoList m_oList = m_oFileDir.entryInfoList();
 
+    for (int i = 0; i < m_oList.size(); ++i) {
+        QFileInfo m_oFileInfo = m_oList.at(i);
+        QFile m_oFile(m_oFileInfo.fileName());
+
+        QTableWidgetItem *m_oFileNameItem = new QTableWidgetItem(m_oFile.fileName());
+        QTableWidgetItem *m_oSizeItem = new QTableWidgetItem(m_oFile.size());
+
+        qDebug() << m_oFile.fileName() << m_oFile.size();
+
+        int m_nRow = ui->m_oShowFiles->rowCount();
+        ui->m_oShowFiles->insertRow(m_nRow);
+        ui->m_oShowFiles->setItem(m_nRow, 0, m_oFileNameItem);
+        ui->m_oShowFiles->setItem(m_nRow, 1, m_oSizeItem);
     }
+    connect(ui->m_oShowFiles, SIGNAL(cellDoubleClicked(int,int)),
+            this, SLOT(openFileOfItem(int,int)));
 }
 
 void FenClientHttp::adjustGoButton()
 {
-    bool ok = m_oUserNameLineEdit->text().isEmpty() &&
-              m_oPasswordLineEdit->text().isEmpty() &&
-              m_oFileDirectoryLineEdit->text().isEmpty();
-    m_oGoPushButton->setEnabled(ok);
+    bool ok = ui->m_oUserNameLineEdit->text().isEmpty() &&
+              ui->m_oPasswordLineEdit->text().isEmpty() &&
+              ui->m_oFileDirectoryLineEdit->text().isEmpty();
+    ui->m_oGoPushButton->setEnabled(ok);
 }
 
 void FenClientHttp::inputPassword()
 {
-    if(!m_oUserNameLineEdit->text().isEmpty()){
-        m_oPasswordLineEdit->setFocus();
+    if(!ui->m_oUserNameLineEdit->text().isEmpty()){
+        ui->m_oPasswordLineEdit->setFocus();
     }
 }
 
 void FenClientHttp::inputPath()
 {
-    if(!(m_oUserNameLineEdit->text().isEmpty() && m_oPasswordLineEdit->text().isEmpty())){
-        m_oFileDirectoryLineEdit->setFocus();
+    if(!(ui->m_oUserNameLineEdit->text().isEmpty() && ui->m_oPasswordLineEdit->text().isEmpty())){
+        ui->m_oFileDirectoryLineEdit->setFocus();
     }
 }
 
 FenClientHttp::~FenClientHttp()
 {
-    
+    delete ui;
+}
+
+void FenClientHttp::createFilesTable()
+{
+    //ui->m_oShowFiles->setVisible(true);
+    ui->m_oShowFiles->setSelectionBehavior(QAbstractItemView::SelectRows);
+
+    ui->m_oShowFiles->setShowGrid(false);
+
+    connect(ui->m_oShowFiles, SIGNAL(cellActivated(int,int)),
+            this, SLOT(openFileOfItem(int,int)));
+}
+
+void FenClientHttp::openFileOfItem(int row, int /*column */)
+{
+    QTableWidgetItem *m_oItem = ui->m_oShowFiles->item(row, 0);
+
+    QDir m_oCurrentDir = QDir(ui->m_oFileDirectoryLineEdit->text());
+
+    QDesktopServices::openUrl(QUrl::fromLocalFile(m_oCurrentDir.absoluteFilePath(m_oItem->text())));
+}
+
+void FenClientHttp::sendFileToServer()
+{
+
 }
