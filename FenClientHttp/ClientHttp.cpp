@@ -4,11 +4,11 @@ ClientHttp::ClientHttp()
 {
 }
 
-//To connect to the server and post data(username, Password) and file
+//To connect to the server and post data(username, Password)
 void ClientHttp::ConnectServer()
 {    
     m_oNetworkManager = new QNetworkAccessManager(this);
-    QUrl m_oUrl(m_sUrlServer);
+    QUrl m_oUrl(m_sUrlServer);//Server Url
 
     QString bound="margin";
     QByteArray m_bDataToSend(QString("--" + bound + "\r\n").toUtf8());
@@ -33,7 +33,7 @@ void ClientHttp::ConnectServer()
 void ClientHttp::CommunicationChannel()
 {
     m_oNetworkManager = new QNetworkAccessManager(this);
-    QUrl m_oUrl(m_sUrlSite);
+    QUrl m_oUrl(m_sUrlSite); //Url of the site
 
     m_oReply = m_oNetworkManager->get(QNetworkRequest(m_oUrl));
     QEventLoop loop;
@@ -43,6 +43,7 @@ void ClientHttp::CommunicationChannel()
     DataRetrieve(m_oReply);
 }
 
+//Upload a file to the server with post
 void ClientHttp::UploadFileToServer()
 {
     //Here the Hash Code Calculate
@@ -53,12 +54,12 @@ void ClientHttp::UploadFileToServer()
 
 
     m_oNetworkManager = new QNetworkAccessManager(this);
-    QUrl m_oUrl(m_sUrlServer);
+    QUrl m_oUrl(m_sUrlServer); //the Server URL
 
     QString bound="margin";
     QByteArray m_bDataToSend(QString("--" + bound + "\r\n").toUtf8());
 
-    //file to upload
+    //file to upload with the other data
     QFile m_oMyFile(m_sFileNameCom);
     if(!m_oMyFile.open(QIODevice::ReadOnly))
     {
@@ -67,6 +68,7 @@ void ClientHttp::UploadFileToServer()
     m_bDataToSend.append(m_oMyFile.readAll());
     m_bDataToSend.append("--" + bound + "--\r\n");
 
+    //file to post
     QFile *file = new QFile(m_sFileNameCom);
     file->open(QIODevice::ReadOnly);
 
@@ -91,6 +93,7 @@ void ClientHttp::UploadFileToServer()
     //DataRetrieve(m_oReply);
 }
 
+//Function to describe some errors retrieved
 QString ClientHttp::ErrorDescription(QNetworkReply::NetworkError m_sErr)
 {
     QString m_sResult;
@@ -123,6 +126,7 @@ QString ClientHttp::ErrorDescription(QNetworkReply::NetworkError m_sErr)
     return m_sResult;
 }
 
+//Function to manage data retrieve from the reply after get/post request
 void ClientHttp::DataRetrieve(QNetworkReply *m_oReplyVal)
 {
     qDebug() << "Hello" << m_oReplyVal->isFinished() << m_oReplyVal->error() << "\n";
@@ -148,6 +152,7 @@ void ClientHttp::DataRetrieve(QNetworkReply *m_oReplyVal)
     }
 }
 
+//return the URL of a given path
 QString ClientHttp::GetUrl(QString m_sValPath)
 {
     return m_sUrlServer+"/"+m_sValPath;
@@ -159,52 +164,61 @@ QString ClientHttp::GetUrl(QString m_sValPath)
     return m_oFile;
 }*/
 
+//define the URL of the server
 void ClientHttp::SetServer(QString m_sServerUrl)
 {
     m_sUrlServer = m_sServerUrl;
 }
 
+//define a User by his name and his password
 void ClientHttp::SetUser(QString m_sUser, QString m_sPass)
 {
     m_sUserName = m_sUser;
     m_sUserPassword = m_sPass;
 }
 
+//return True when it is ok
 bool ClientHttp::IsOk()
 {
     return m_bVal;
 }
 
+//define the URL of a given site
 void ClientHttp::SetUrl(QString m_sSiteUrl)
 {
     m_sUrlSite = m_sSiteUrl;
 }
 
+//define the name of an user
 void ClientHttp::SetUserName(QString m_sNameUser)
 {
     m_sUserName = m_sNameUser;
 }
 
+//define the password of an user
 void ClientHttp::SetUserPassword(QString m_sPasswordUser)
 {
     m_sUserPassword = m_sPasswordUser;
 }
 
+//define the name of a file
 void ClientHttp::SetFileName(QString m_sNameFile)
 {
     m_sFileNameCom = m_sNameFile;
 }
 
+//define the Url and the name of a file
 void ClientHttp::PostFile(QString m_sUrl, QString m_sFileName)
 {
     m_sUrlServer = m_sUrl;
     m_sFileNameCom = m_sFileName;
 }
 
+//list all file of a folder
 void ClientHttp::ReadFileDir(QString m_sDirPath)
 {
     QDir m_oDirectory(m_sDirPath);
-    if(!m_oDirectory.exists()){
+    if(!m_oDirectory.exists()){ //if the directory doesn't exists
         m_bVal = false;
     }
     else{
@@ -238,6 +252,7 @@ QByteArray ClientHttp::Get(QString point)
     return body(m_Resp);
 }
 
+//return the content type of the request http
 QString ClientHttp::getMimeType(QString extension) const
 {
     //texte
@@ -294,26 +309,31 @@ QString ClientHttp::getMimeType(QString extension) const
     return QString("text/plain"); // default
 }
 
+//slot when a file is uploaded to a server
 void ClientHttp::responseUpload()
 {
     DataRetrieve(m_oReply);
 }
 
+//slot when a file is downloaded from a server
 void ClientHttp::responseDownload()
 {
     FileRetrieve("C:/Data",m_oReply);
 }
 
+//slot to check the upload progress
 void ClientHttp::uploadProgress(qint64 bytesSent, qint64 bytesTotal)
 {
     qDebug() << "Uploaded" << bytesSent << "of" << bytesTotal;
 }
 
+//slot to check the download progress
 void ClientHttp::downloadProgress(qint64 bytesReceived, qint64 bytesTotal)
 {
     qDebug() << "Downloaded " << bytesReceived << " of " << bytesTotal;
 }
 
+//slot when a file is downloaded
 void ClientHttp::DownloadData()
 {
     m_oNetworkManager = new QNetworkAccessManager(this);
@@ -329,7 +349,7 @@ void ClientHttp::DownloadData()
     //FileRetrieve("C:/Data", m_oReply);
 }
 
-
+//function to manage the file downloaded
 void ClientHttp::FileRetrieve(QString m_sFileNamePath, QNetworkReply *m_oResponse)
 {
     qDebug() << "Hello" << m_oResponse->isFinished() << m_oResponse->error() << "\n";
