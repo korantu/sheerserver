@@ -67,8 +67,8 @@ void ClientHttp::UploadFileToServer()
     m_bDataToSend.append(m_oMyFile.readAll());
     m_bDataToSend.append("--" + bound + "--\r\n");
 
-    /*QFile *file = new QFile(m_sFileNameCom);
-    file->open(QIODevice::ReadOnly);*/
+    QFile *file = new QFile(m_sFileNameCom);
+    file->open(QIODevice::ReadOnly);
 
     QNetworkRequest m_oRequest = QNetworkRequest(m_oUrl);
     m_oRequest.setHeader(QNetworkRequest::ContentTypeHeader,QVariant("application/x-www-form-urlencoded"));
@@ -82,14 +82,13 @@ void ClientHttp::UploadFileToServer()
     }
 
     QEventLoop loop;
-    m_oReply = m_oNetworkManager->post(m_oRequest, m_bDataToSend);
-    /*m_oReply = m_oNetworkManager->put(m_oRequest,file);
-    file->setParent(m_oReply);*/
-    connect(m_oNetworkManager, SIGNAL(finished(QNetworkReply*)), &loop, SLOT(quit()));
+    m_oReply = m_oNetworkManager->post(m_oRequest, file);
+    //connect(m_oNetworkManager, SIGNAL(finished(QNetworkReply*)), &loop, SLOT(quit()));
+    connect(m_oReply, SIGNAL(uploadProgress(qint64, qint64)), SLOT(uploadProgress(qint64, qint64)));
+    connect(m_oReply, SIGNAL(finished()), this, SLOT(responseUpload()));
     loop.exec();
-    qDebug() << "Taille: " << m_oReply->readAll().size();
 
-    DataRetrieve(m_oReply);
+    //DataRetrieve(m_oReply);
 }
 
 QString ClientHttp::ErrorDescription(QNetworkReply::NetworkError m_sErr)
@@ -293,4 +292,68 @@ QString ClientHttp::getMimeType(QString extension) const
     if ( extension == QString("m3u"))			return QString("audio/x-mpegurl");
 
     return QString("text/plain"); // default
+}
+
+void ClientHttp::responseUpload()
+{
+    DataRetrieve(m_oReply);
+}
+
+void ClientHttp::responseDownload()
+{
+    FileRetrieve("C:/Data",m_oReply);
+}
+
+void ClientHttp::uploadProgress(qint64 bytesSent, qint64 bytesTotal)
+{
+    qDebug() << "Uploaded" << bytesSent << "of" << bytesTotal;
+}
+
+void ClientHttp::downloadProgress(qint64 bytesReceived, qint64 bytesTotal)
+{
+    qDebug() << "Downloaded " << bytesReceived << " of " << bytesTotal;
+}
+
+void ClientHttp::DownloadData()
+{
+    m_oNetworkManager = new QNetworkAccessManager(this);
+    QUrl m_oUrl(m_sUrlSite);
+
+    m_oReply = m_oNetworkManager->get(QNetworkRequest(m_oUrl));
+    QEventLoop loop;
+    connect(m_oReply, SIGNAL(downloadProgress(qint64, qint64)), SLOT(downloadProgress(qint64, qint64)));
+    //connect(m_oReply, SIGNAL(finished()), &loop, SLOT(quit()));
+    connect(m_oReply, SIGNAL(finished()), SLOT(responseDownload()));
+    loop.exec();
+
+    //FileRetrieve("C:/Data", m_oReply);
+}
+
+
+void ClientHttp::FileRetrieve(QString m_sFileNamePath, QNetworkReply *m_oResponse)
+{
+    qDebug() << "Hello" << m_oResponse->isFinished() << m_oResponse->error() << "\n";
+    if(m_oResponse){
+        if(m_oResponse->error() == QNetworkReply::NoError) //If there is no error
+        {
+            m_bVal = true;
+            QUrl m_oUrl(m_sUrlSite);
+            qDebug() << "Received Network Reply\n";
+            qDebug() << "Here is the error: " << ErrorDescription(m_oResponse->error()) << "\n";
+            QFileInfo m_oFileInfo = m_oUrl.path();
+            QFile m_oFile(m_sFileNamePath+"/"+m_oFileInfo.fileName());
+            m_oFile.open(QIODevice::WriteOnly);
+            m_oFile.write(m_oResponse->readAll());
+            qDebug() << "File Name : " << m_oFileInfo.fileName();
+        }else {
+
+            m_bVal = true;
+            qDebug() << "Here is the error: " << ErrorDescription(m_oResponse->error()) << "\n";
+        }
+        m_oResponse->deleteLater();
+    }else{
+        m_bVal = false;
+        qDebug() << "Error";
+        qDebug() << "Here is the error: " << ErrorDescription(m_oResponse->error());
+    }
 }

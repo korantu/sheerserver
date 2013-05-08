@@ -38,23 +38,21 @@
 }
 
 */
-bool testFileUpload()
+/*bool testFileUpload()
 {
     ClientHttp test2;
-    test2.PostFile("http://localhost:8080/info", "C:/Data/J2EE_Struts_Spring_Hibernate.pdf");
+    test2.PostFile("http://localhost:8080/info", "C:/Data/test.pdf");
 
     test2.UploadFileToServer();
     if(test2.IsOk())
     {
         qDebug() << "It worked.\n";
-        /*test2.SetUrl("http://localhost:8080/info");
-        test2.CommunicationChannel();*/
     } else {
         qDebug() << "Problem \n";
     }
     return test2.IsOk();
 }
-
+*/
 /*bool testReadDir()
 {
     ClientHttp testRead;
@@ -67,6 +65,20 @@ bool testFileUpload()
     return testRead.IsOk();
 }*/
 
+bool testDownload()
+{
+    ClientHttp testDown;
+    testDown.SetUrl("https://www.java.net//today/2004/07/30/Spring.pdf");
+    testDown.DownloadData();
+
+    if(testDown.IsOk() == true){
+        qDebug() << "It worked.\n";
+    } else {
+        qDebug() << "Problem \n";
+    }
+    return testDown.IsOk();
+}
+
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
@@ -74,8 +86,9 @@ int main(int argc, char *argv[])
 
     //qDebug() << testHttp();//communication to server
     //qDebug() << testLog();// send data to server
-    qDebug() << testFileUpload();
+    //qDebug() << testFileUpload();
     //qDebug() << testReadDir();
+    qDebug() << testDownload();
     
     return a.exec();
 
