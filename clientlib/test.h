@@ -3,15 +3,26 @@
 
 #include <sheer_cloud.h>
 
-#include <QByteArray>
 #include <QtTest/QtTest>
 
 class TestSheerCloud: public QObject {
   Q_OBJECT
+
+  SheerCloudLink link;
+  QEventLoop loop;
+ 
+ public:
+ TestSheerCloud(): link("http://localhost:8080", "abc", "123") {
+    link.connect( &link, SIGNAL(done()), &loop, SLOT(quit()));
+  };
+
+
+
     private slots:
   void VerifyTesting();
-  void Basics();
-  void HttpBasics();
+  void SheerLinkLogin();
+  void SheerLinkUploadDownload();
+  void SheerLinkUploadDownloadBulk();
 };
 
 #endif //  __test_h__

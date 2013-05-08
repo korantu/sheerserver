@@ -3,17 +3,36 @@
 
 #include <QString>
 #include <QByteArray>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
 
-class SheerCloud {
+
+class SheerCloudLink: public QNetworkAccessManager {
+  Q_OBJECT;
  public:
-  virtual bool Authorize(QString location, QString login, QString password) = 0;
-  virtual bool Upload(QString, const QByteArray &) = 0;
-  virtual bool Download(QString, QByteArray &) = 0;
+  SheerCloudLink(QString location, QString login, QString password);
+  virtual ~SheerCloudLink();
+  
+  void Authorize();
+  bool Authorized();
 
-  virtual QString lastError() = 0;
+  void Upload(QString, const QByteArray &);
+  void Download(QString, QByteArray &);
+
+ private:
+  QString m_location, m_login, m_password;
+
+  bool m_is_authorized;
+
+  QByteArray * m_out; // Keep track of output
+
+  private slots:
+  void login_completed( QNetworkReply *);
+  void upload_completed( QNetworkReply *);
+  void download_completed( QNetworkReply *);
+
+  signals:
+  void done();
 };
-
-SheerCloud * GetSheerCloudHttp();
-SheerCloud * GetSheerCloudStub();
 
 #endif

@@ -1,68 +1,65 @@
 #include "sheer_cloud.h"
 
-// Header
-class RealSheerCloud: public SheerCloud {
-public:
-  RealSheerCloud();
-  virtual ~RealSheerCloud();
-
-  virtual bool Authorize( QString location, QString login, QString password);
-  virtual bool Upload( QString, const QByteArray &);
-  virtual bool Download( QString, QByteArray & out);
-
-  virtual QString lastError();
-
-private:
-  QString m_location;
-  QString m_login;
-  QString m_password;
-  QString m_lastError;
-};
-
 #include <QDebug>
-#include <map>
 
-// Implementation
-RealSheerCloud::RealSheerCloud(){
-};
+SheerCloudLink::SheerCloudLink(QString location, QString login, QString password){
+  m_is_authorized = false;
 
-RealSheerCloud::~RealSheerCloud(){
-};
-
-bool RealSheerCloud::Authorize(QString location, QString login, QString password){
   m_location = location;
   m_login = login;
   m_password = password;
-  return true;
+  m_out = NULL;
 };
 
-// Testing
-std::map<QString, QByteArray> minicloud;
+SheerCloudLink::~SheerCloudLink(){
+};
+  
+void SheerCloudLink::Authorize(){
+  get( QNetworkRequest( QUrl( m_location + "/authorize?login=" + m_login + "&password=" + m_password ) ));
+  connect( this, SIGNAL(finished( QNetworkReply *)), 
+	   this, SLOT(login_completed( QNetworkReply *)) );
+}
 
-bool RealSheerCloud::Upload(QString file, const QByteArray & data){
-  minicloud[file] = data;
-  return true;
+void SheerCloudLink::Upload(QString file, const QByteArray & in){
+  QNetworkRequest upload_req( QUrl( m_location + "/upload?login=" + m_login + "&password=" + m_password + "&file=" + file ));
+  upload_req.setRawHeader( "content-type", "application/octet-stream");
+  post( upload_req, in);
+  connect( this, SIGNAL(finished( QNetworkReply *)), 
+	   this, SLOT(upload_completed( QNetworkReply *)) );
+
 };
 
-bool RealSheerCloud::Download( QString file,  QByteArray & out){
-  if ( minicloud.find( file) == minicloud.end()) {
-    m_lastError = "File not found in the cloud";
-    return false;
+void SheerCloudLink::Download(QString file, QByteArray & out){
+  get( QNetworkRequest( QUrl( m_location + "/download?login=" + m_login + "&password=" + m_password + "&file=" + file ) ));
+  m_out = &out;
+  connect( this, SIGNAL(finished( QNetworkReply *)), 
+	   this, SLOT(download_completed( QNetworkReply *)) );
+};
+
+bool SheerCloudLink::Authorized(){
+  return m_is_authorized;
+};
+
+void SheerCloudLink::login_completed( QNetworkReply * reply){
+  if( QString(reply->readAll()).contains( "OK" ) ) {
+    m_is_authorized = true;
   };
-  out = minicloud[ file];
-  return true;
+  disconnect( this, SLOT(login_completed( QNetworkReply *)) );
+  done();
 };
 
-QString RealSheerCloud::lastError(){
-  return m_lastError;
+void SheerCloudLink::upload_completed( QNetworkReply * resp){
+  QByteArray got = resp->readAll();
+  //TODO error reporting
+  disconnect( this, SLOT(upload_completed( QNetworkReply *)) );
+  done();
 };
 
-
-// API object
-RealSheerCloud connection;
-
-// API entrance
-SheerCloud * GetSheerCloud(){
-  return &connection;
+void SheerCloudLink::download_completed( QNetworkReply * resp){
+  QByteArray got = resp->readAll();
+  if( m_out != NULL ) {
+    *m_out = got;
+  };
+  disconnect( this, SLOT(download_completed( QNetworkReply *)) );
+  done();
 };
-

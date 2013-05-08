@@ -1,34 +1,45 @@
 #include "test.h"
 
-int counter = 0;
+#include <QByteArray>
+
 void TestSheerCloud::VerifyTesting() {
   QVERIFY2(2+2==4, "Really");
-  QCOMPARE("123", "123");
 }
 
-const char * str(QString in){
-  return in.toStdString().c_str();
-}
+void TestSheerCloud::SheerLinkLogin() {
+  link.Authorize();
+  loop.exec();
+  QVERIFY2( link.Authorized(), "Password should match; Make sure the server is running.");
+};
 
-void TestSheerCloud::Basics() {
-  QByteArray out;
-  SheerCloud * cloud = GetSheerCloudStub();
+void TestSheerCloud::SheerLinkUploadDownload() {
+  SheerLinkLogin();
 
-  QVERIFY2(cloud->Authorize("neverland", "big", "boss"), str( cloud->lastError()));
-  QVERIFY2(cloud->Upload("file1.txt", "123"), str( cloud->lastError()));
-  QVERIFY2(cloud->Download("file1.txt", out), str( cloud->lastError()));
-  QVERIFY2( ! cloud->Download("file2.txt", out), "Downloading non-existing file");
-}
+  link.Upload("very/important/file.txt", "123");
+  loop.exec();
 
-void TestSheerCloud::HttpBasics() {
-  QByteArray out;
-  SheerCloud * cloud = GetSheerCloudHttp();
+  QByteArray result;
+  link.Download("very/important/file.txt", result);
+  loop.exec();
 
-  QVERIFY2(cloud->Authorize("http://localhost:8080", "abc", "123"), str( cloud->lastError()));
+  QVERIFY2( result.contains("123"), "Sent/recieved data mismatch");
+};
 
-  qDebug() << "Test\n";
 
-  QVERIFY( false);
-}
+void TestSheerCloud::SheerLinkUploadDownloadBulk() {
+  SheerLinkLogin();
+
+  QByteArray massive("1234567890abcdefg"); // Every letter is a megabyte.
+  massive = massive.repeated(1000000);
+  link.Upload("very/huge/file.txt", massive);
+  loop.exec();
+
+  QByteArray result;
+  link.Download("very/huge/file.txt", result);
+  loop.exec();
+
+  QVERIFY2( result == massive, "Sent/recieved data mismatch");
+};
+
 
 QTEST_MAIN(TestSheerCloud)
