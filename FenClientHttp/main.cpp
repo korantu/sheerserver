@@ -6,8 +6,8 @@
 /*bool testHttp()
 {
     ClientHttp test;
-    test.SetServer("http://qt-project.org/doc/qt-5.0/qtnetwork");
-    QString m_sMyUrl = test.GetUrl("qnetworkreply.html");
+    test.SetServer("http://localhost:8080");
+    QString m_sMyUrl = test.GetUrl("info");
 
     test.SetUrl(m_sMyUrl);
     test.CommunicationChannel();
@@ -41,14 +41,12 @@
 /*bool testFileUpload()
 {
     ClientHttp test2;
-    test2.PostFile("http://localhost:8080/info", "C:/Data/Home.png");
+    test2.PostFile("http://localhost:8080/info", "C:/Data/test.pdf");
 
     test2.UploadFileToServer();
     if(test2.IsOk())
     {
         qDebug() << "It worked.\n";
-        test2.SetUrl("http://localhost:8080/info");
-        test2.CommunicationChannel();
     } else {
         qDebug() << "Problem \n";
     }
@@ -67,22 +65,37 @@
     return testRead.IsOk();
 }*/
 
+bool testDownload()
+{
+    ClientHttp testDown;
+    testDown.SetUrl("https://www.java.net//today/2004/07/30/Spring.pdf");
+    testDown.DownloadData();
+
+    if(testDown.IsOk() == true){
+        qDebug() << "It worked.\n";
+    } else {
+        qDebug() << "Problem \n";
+    }
+    return testDown.IsOk();
+}
+
 int main(int argc, char *argv[])
 {
-    /*QApplication a(argc, argv);
+    QApplication a(argc, argv);
     qDebug() << "Hi\n";
 
     //qDebug() << testHttp();//communication to server
     //qDebug() << testLog();// send data to server
-    qDebug() << testFileUpload();
+    //qDebug() << testFileUpload();
     //qDebug() << testReadDir();
+    qDebug() << testDownload();
     
-    return a.exec();*/
+    return a.exec();
 
 
-    QApplication app(argc, argv);
+    /*QApplication app(argc, argv);
     FenClientHttp w;
     w.show();
 
-    return app.exec();
+    return app.exec();*/
 }
