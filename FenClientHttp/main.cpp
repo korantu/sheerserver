@@ -6,8 +6,8 @@
 /*bool testHttp()
 {
     ClientHttp test;
-    test.SetServer("http://qt-project.org/doc/qt-5.0/qtnetwork");
-    QString m_sMyUrl = test.GetUrl("qnetworkreply.html");
+    test.SetServer("http://localhost:8080");
+    QString m_sMyUrl = test.GetUrl("info");
 
     test.SetUrl(m_sMyUrl);
     test.CommunicationChannel();
@@ -38,23 +38,23 @@
 }
 
 */
-/*bool testFileUpload()
+bool testFileUpload()
 {
     ClientHttp test2;
-    test2.PostFile("http://localhost:8080/info", "C:/Data/Home.png");
+    test2.PostFile("http://localhost:8080/info", "C:/Data/J2EE_Struts_Spring_Hibernate.pdf");
 
     test2.UploadFileToServer();
     if(test2.IsOk())
     {
         qDebug() << "It worked.\n";
-        test2.SetUrl("http://localhost:8080/info");
-        test2.CommunicationChannel();
+        /*test2.SetUrl("http://localhost:8080/info");
+        test2.CommunicationChannel();*/
     } else {
         qDebug() << "Problem \n";
     }
     return test2.IsOk();
 }
-*/
+
 /*bool testReadDir()
 {
     ClientHttp testRead;
@@ -69,7 +69,7 @@
 
 int main(int argc, char *argv[])
 {
-    /*QApplication a(argc, argv);
+    QApplication a(argc, argv);
     qDebug() << "Hi\n";
 
     //qDebug() << testHttp();//communication to server
@@ -77,12 +77,12 @@ int main(int argc, char *argv[])
     qDebug() << testFileUpload();
     //qDebug() << testReadDir();
     
-    return a.exec();*/
+    return a.exec();
 
 
-    QApplication app(argc, argv);
+    /*QApplication app(argc, argv);
     FenClientHttp w;
     w.show();
 
-    return app.exec();
+    return app.exec();*/
 }

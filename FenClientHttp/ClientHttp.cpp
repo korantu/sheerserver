@@ -67,6 +67,9 @@ void ClientHttp::UploadFileToServer()
     m_bDataToSend.append(m_oMyFile.readAll());
     m_bDataToSend.append("--" + bound + "--\r\n");
 
+    /*QFile *file = new QFile(m_sFileNameCom);
+    file->open(QIODevice::ReadOnly);*/
+
     QNetworkRequest m_oRequest = QNetworkRequest(m_oUrl);
     m_oRequest.setHeader(QNetworkRequest::ContentTypeHeader,QVariant("application/x-www-form-urlencoded"));
 
@@ -80,8 +83,11 @@ void ClientHttp::UploadFileToServer()
 
     QEventLoop loop;
     m_oReply = m_oNetworkManager->post(m_oRequest, m_bDataToSend);
+    /*m_oReply = m_oNetworkManager->put(m_oRequest,file);
+    file->setParent(m_oReply);*/
     connect(m_oNetworkManager, SIGNAL(finished(QNetworkReply*)), &loop, SLOT(quit()));
     loop.exec();
+    qDebug() << "Taille: " << m_oReply->readAll().size();
 
     DataRetrieve(m_oReply);
 }
@@ -215,4 +221,76 @@ void ClientHttp::ReadFileDir(QString m_sDirPath)
             qDebug() << "\n";
         }
     }
+}
+
+QByteArray ClientHttp::body(QNetworkReply *m_oReplyResult)
+{
+    QByteArray data = m_oReplyResult->readAll();
+    qDebug() << ErrorDescription(m_oReplyResult->error());
+    m_oReplyResult->deleteLater();
+
+    return data;
+}
+
+QByteArray ClientHttp::Get(QString point)
+{
+    QNetworkReply *m_Resp = m_oNetworkManager->get(QNetworkRequest(QUrl("http://localhost:8080/" + point)));
+    qDebug() << ErrorDescription(m_Resp->   error());
+    return body(m_Resp);
+}
+
+QString ClientHttp::getMimeType(QString extension) const
+{
+    //texte
+    if (extension == QString("txt"))			return QString("text/plain");
+    if (extension == QString("htm") || extension == QString("html"))	return QString("text/html");
+    if (extension == QString("css"))			return QString("text/css");
+    //Images
+    if (extension == QString("png"))			return QString("image/png");
+    if (extension == QString("gif"))			return QString("image/gif");
+    if (extension == QString("jpg") || extension == QString("jpeg"))	return QString("image/jpeg");
+    if (extension == QString("bmp"))			return QString("image/bmp");
+    if (extension == QString("tif"))			return QString("image/tiff");
+    //Archives
+    if (extension == QString("bz2"))			return QString("application/x-bzip");
+    if (extension == QString("gz"))			return QString("application/x-gzip");
+    if (extension == QString("tar") )			return QString("application/x-tar");
+    if (extension == QString("zip") )			return QString("application/zip");
+    //Audio
+    if ( extension == QString("aif") || extension == QString("aiff"))	return QString("audio/aiff");
+    if ( extension == QString("mid") || extension == QString("midi"))	return QString("audio/mid");
+    if ( extension == QString("mp3"))			return QString("audio/mpeg");
+    if ( extension == QString("ogg"))			return QString("audio/ogg");
+    if ( extension == QString("wav"))			return QString("audio/wav");
+    if ( extension == QString("wma"))			return QString("audio/x-ms-wma");
+    //Video
+    if ( extension == QString("asf") || extension == QString("asx"))	return QString("video/x-ms-asf");
+    if ( extension == QString("avi"))			return QString("video/avi");
+    if ( extension == QString("mpg") || extension == QString("mpeg"))	return QString("video/mpeg");
+    if ( extension == QString("wmv"))			return QString("video/x-ms-wmv");
+    if ( extension == QString("wmx"))			return QString("video/x-ms-wmx");
+    //XML
+    if ( extension == QString("xml"))			return QString("text/xml");
+    if ( extension == QString("xsl"))			return QString("text/xsl");
+    //Microsoft
+    if ( extension == QString("doc") || extension == QString("rtf"))	return QString("application/msword");
+    if ( extension == QString("xls"))			return QString("application/excel");
+    if ( extension == QString("ppt") || extension == QString("pps"))	return QString("application/vnd.ms-powerpoint");
+    //Adobe
+    if ( extension == QString("pdf"))			return QString("application/pdf");
+    if ( extension == QString("ai") || extension == QString("eps"))	return QString("application/postscript");
+    if ( extension == QString("psd"))			return QString("image/psd");
+    //Macromedia
+    if ( extension == QString("swf"))			return QString("application/x-shockwave-flash");
+    //Real
+    if ( extension == QString("ra"))			return QString("audio/vnd.rn-realaudio");
+    if ( extension == QString("ram"))			return QString("audio/x-pn-realaudio");
+    if ( extension == QString("rm"))			return QString("application/vnd.rn-realmedia");
+    if ( extension == QString("rv"))			return QString("video/vnd.rn-realvideo");
+    //Other
+    if ( extension == QString("exe"))			return QString("application/x-msdownload");
+    if ( extension == QString("pls"))			return QString("audio/scpls");
+    if ( extension == QString("m3u"))			return QString("audio/x-mpegurl");
+
+    return QString("text/plain"); // default
 }
