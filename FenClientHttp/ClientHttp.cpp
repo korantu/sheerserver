@@ -16,8 +16,8 @@ void ClientHttp::ConnectServer()
     m_bDataToSend.append("--" + bound + "--\r\n");
 
     QNetworkRequest m_oRequest = QNetworkRequest(m_oUrl);
-    m_oRequest.setRawHeader("User", m_sUserName.toUtf8());
-    m_oRequest.setRawHeader("Password", m_sUserPassword.toUtf8());
+    m_oRequest.setRawHeader("login", m_sUserName.toUtf8());
+    m_oRequest.setRawHeader("password", m_sUserPassword.toUtf8());
     m_oRequest.setRawHeader(QString("Content-Type").toUtf8(),QString("multipart/form-data; boundary=" + bound).toUtf8());
     m_oRequest.setRawHeader(QString("Content-Lenght").toUtf8(), QString::number(m_bDataToSend.length()).toUtf8());
 
@@ -170,6 +170,12 @@ void ClientHttp::SetServer(QString m_sServerUrl)
     m_sUrlServer = m_sServerUrl;
 }
 
+//return the Url for Uploding
+QString ClientHttp::GetUrlServer()
+{
+    return m_sUrlServer;
+}
+
 //define a User by his name and his password
 void ClientHttp::SetUser(QString m_sUser, QString m_sPass)
 {
@@ -195,16 +201,34 @@ void ClientHttp::SetUserName(QString m_sNameUser)
     m_sUserName = m_sNameUser;
 }
 
+//return login
+QString ClientHttp::GetUser()
+{
+    return m_sUserName;
+}
+
 //define the password of an user
 void ClientHttp::SetUserPassword(QString m_sPasswordUser)
 {
     m_sUserPassword = m_sPasswordUser;
 }
 
+//return Password
+QString ClientHttp::GetPassword()
+{
+    return m_sUserPassword;
+}
+
 //define the name of a file
 void ClientHttp::SetFileName(QString m_sNameFile)
 {
     m_sFileNameCom = m_sNameFile;
+}
+
+//return File Name
+QString ClientHttp::GetFileName()
+{
+    return m_sFileNameCom;
 }
 
 //define the Url and the name of a file
