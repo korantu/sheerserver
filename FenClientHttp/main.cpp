@@ -39,14 +39,15 @@
     return test1.IsOk();
 }
 */
-/*
+
 bool testFileUpload()
 {
     ClientHttp test2;
     test2.SetUserName("abc");
     test2.SetUserPassword("123");
     test2.SetFileName("C:/Data/J2EEStrutsSpringHibernate.pdf");
-    QString m_sUrl = "http://localhost:8080/upload?login="+test2.GetUser()+"&password="+test2.GetPassword()+"&file=J2EEStrutsSpringHibernate.pdf";
+    QString m_sFile = test2.GetFileName().section('/',-1);
+    QString m_sUrl = "http://localhost:8080/upload?login="+test2.GetUser()+"&password="+test2.GetPassword()+"&file="+m_sFile;
     test2.SetServer(m_sUrl);
 
     test2.UploadFileToServer();
@@ -58,7 +59,7 @@ bool testFileUpload()
     }
     return test2.IsOk();
 }
-*/
+
 /*bool testReadDir()
 {
     ClientHttp testRead;
@@ -70,7 +71,7 @@ bool testFileUpload()
     }
     return testRead.IsOk();
 }*/
-
+/*
 bool testDownload()
 {
     ClientHttp testDown;
@@ -87,7 +88,7 @@ bool testDownload()
     }
     return testDown.IsOk();
 }
-
+*/
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
@@ -95,9 +96,9 @@ int main(int argc, char *argv[])
 
     //qDebug() << testHttp();//communication to server
     //qDebug() << testLog();// send data to server
-    //qDebug() << testFileUpload();
+    qDebug() << testFileUpload();
     //qDebug() << testReadDir();
-    qDebug() << testDownload();
+    //qDebug() << testDownload();
     
     return a.exec();
 
