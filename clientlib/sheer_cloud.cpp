@@ -21,6 +21,7 @@ void SheerCloudLink::Authorize(){
 }
 
 void SheerCloudLink::Upload(QString file, const QByteArray & in){
+    qDebug() << m_location << "youpii";
   QNetworkRequest upload_req( QUrl( m_location + "/upload?login=" + m_login + "&password=" + m_password + "&file=" + file ));
   upload_req.setRawHeader( "content-type", "application/octet-stream");
   post( upload_req, in);
