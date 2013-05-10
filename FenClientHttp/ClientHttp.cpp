@@ -91,6 +91,9 @@ void ClientHttp::UploadFileToServer()
     connect(m_oReply, SIGNAL(finished()), this, SLOT(responseUpload()));
     loop.exec();
 
+    //m_oMyFile.close();
+    //file->close();
+
     //DataRetrieve(m_oReply);
 }
 
