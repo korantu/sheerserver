@@ -95,6 +95,13 @@ void FenClientHttp::sendFileToServer(int row, int /*column */)
 
     QDir m_oCurrentDir = QDir(ui->m_oFileDirectoryLineEdit->text());
 
-    m_oClient.PostFile("http://localhost:8080/info", m_oCurrentDir.absoluteFilePath(m_oItem->text()));
+    QString m_sfile = m_oCurrentDir.absoluteFilePath(m_oItem->text()).section('/', -1);
+    qDebug() << "nom : " << m_sfile;
+    m_oClient.SetUserName(ui->m_oUserNameLineEdit->text());
+    m_oClient.SetUserPassword(ui->m_oPasswordLineEdit->text());
+    m_oClient.SetFileName(m_oCurrentDir.absoluteFilePath(m_oItem->text()));
+    QString m_sUrl = "http://localhost:8080/upload?login="+m_oClient.GetUser()+"&password="+m_oClient.GetPassword()+"&file="+m_sfile;
+    m_oClient.SetServer(m_sUrl);
+    //m_oClient.PostFile("http://localhost:8080/info", m_oCurrentDir.absoluteFilePath(m_oItem->text()));
     m_oClient.UploadFileToServer();
 }

@@ -5,6 +5,7 @@
 #include <QByteArray>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
+#include <QFile>
 
 
 class SheerCloudLink: public QNetworkAccessManager {
@@ -19,20 +20,23 @@ class SheerCloudLink: public QNetworkAccessManager {
   void Upload(QString, const QByteArray &);
   void Download(QString, QByteArray &);
 
- private:
+ public:
   QString m_location, m_login, m_password;
+  QNetworkReply *reply;
 
   bool m_is_authorized;
 
   QByteArray * m_out; // Keep track of output
 
-  private slots:
+  public slots:
   void login_completed( QNetworkReply *);
-  void upload_completed( QNetworkReply *);
-  void download_completed( QNetworkReply *);
+  void upload_completed();
+  void download_completed();
+  void uploadProgress(qint64 bytesSent, qint64 bytesTotal);
+  void downloadProgress(qint64 bytesReceived, qint64 bytesTotal);
 
-  signals:
-  void done();
+  //signals:
+  void doneNetwork(QNetworkReply *reply);
 };
 
 #endif
