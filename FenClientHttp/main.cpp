@@ -9,7 +9,7 @@
     test.SetServer("http://localhost:8080");
     QString m_sMyUrl = test.GetUrl("info");
 
-    test.SetUrl(m_sMyUrl);
+    test.SetServer(m_sMyUrl);
     test.CommunicationChannel();
     if(test.IsOk())
     {
@@ -45,7 +45,7 @@ bool testFileUpload()
     ClientHttp test2;
     test2.SetUserName("abc");
     test2.SetUserPassword("123");
-    test2.SetFileName("C:/Data/J2EEStrutsSpringHibernate.pdf");
+    test2.SetFileName("C:/Data/Tulips.jpg");
     QString m_sFile = test2.GetFileName().section('/',-1);
     QString m_sUrl = "http://localhost:8080/upload?login="+test2.GetUser()+"&password="+test2.GetPassword()+"&file="+m_sFile;
     test2.SetServer(m_sUrl);
@@ -71,14 +71,14 @@ bool testFileUpload()
     }
     return testRead.IsOk();
 }*/
-/*
+
 bool testDownload()
 {
     ClientHttp testDown;
     testDown.SetUserName("abc");
     testDown.SetUserPassword("123");
-    QString m_sUrl = "http://localhost:8080/download?login="+testDown.GetUser()+"&password="+testDown.GetPassword()+"&file=oldfile.txt";
-    testDown.SetUrl(m_sUrl);
+    QString m_sUrl = "http://localhost:8080/download?login="+testDown.GetUser()+"&password="+testDown.GetPassword()+"&file=Tulips.jpg";
+    testDown.SetServer(m_sUrl);
     testDown.DownloadData();
 
     if(testDown.IsOk() == true){
@@ -88,7 +88,7 @@ bool testDownload()
     }
     return testDown.IsOk();
 }
-*/
+
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);

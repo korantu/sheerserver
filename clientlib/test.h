@@ -17,8 +17,7 @@ class TestSheerCloud: public QObject {
   };
 
 
-
-    private slots:
+    public slots:
   void VerifyTesting();
   void SheerLinkLogin();
   void SheerLinkUploadDownload();
