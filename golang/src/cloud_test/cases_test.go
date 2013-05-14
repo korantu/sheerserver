@@ -38,33 +38,40 @@ func TestLogin(t *testing.T) {
 	// Raw
 	good_result := string(cloud.Get("authorize?login=important&password=7890"))
 	bad_result := string(cloud.Get("authorize?login=important&password=789"))
-	Must( t, good_result == "OK", "Correct user" )
-	Must( t, bad_result == "FAIL", "Wrong password")
+	Must(t, good_result == "OK", "Correct user")
+	Must(t, bad_result == "FAIL", "Wrong password")
 	// Nicer
-	Must( t, good_guy.Authorize() == "OK", "Correct user" )
-	Must( t, strings.Contains(bad_guy.Authorize(), "FAIL"), "Wrong user")
+	Must(t, good_guy.Authorize() == "OK", "Correct user")
+	Must(t, strings.Contains(bad_guy.Authorize(), "FAIL"), "Wrong user")
 }
 
-func TestFileTransfer(t * testing.T){
+func TestFileTransfer(t *testing.T) {
 	// Raw
 	uploaded := string(cloud.Post("upload?login=important&password=7890&file=numbers.txt", []byte("12345")))
 	downloaded := string(cloud.Get("download?login=important&password=7890&file=numbers.txt"))
-	t.Log( uploaded)
-	t.Log( downloaded)
-	Must( t, uploaded == "OK", "File upload" )
-	Must( t, downloaded == "12345", "File download" )
+	t.Log(uploaded)
+	t.Log(downloaded)
+	Must(t, uploaded == "OK", "File upload")
+	Must(t, downloaded == "12345", "File download")
 	// Nicer
-	Must( t, strings.Contains(bad_guy.Upload("scene.txt", []byte("Act I")), "FAIL"), "Upload by a bad guy")
+	Must(t, strings.Contains(bad_guy.Upload("scene.txt", []byte("Act I")), "FAIL"), "Upload by a bad guy")
 	// Flow
-	Must( t, good_guy.Upload("scene.txt", []byte("Act I")) == "OK", "Upload")
-	Must( t, string(good_guy.Download("scene.txt")) == "Act I", "Download")
+	Must(t, good_guy.Upload("scene.txt", []byte("Act I")) == "OK", "Upload")
+	Must(t, string(good_guy.Download("scene.txt")) == "Act I", "Download")
+}
+
+func TestFileDelete( t* testing.T) {
+	Must(t, good_guy.Upload("to_remove/scene.txt", []byte("Act I")) == "OK", "Upload temporary")
+	Must(t, good_guy.Delete("to_remove/scene.txt") == "OK", "Deletion")
+	Must(t, good_guy.Delete("to_remove/not_scene.txt") == "OK", "Deletion of non-existing file")
+	Must(t, strings.Contains( string(good_guy.Download("to_remove/not_scene.txt")), "FAIL"), "Download non-existing")
+	Must(t, strings.Contains( string(good_guy.Download("to_remove/scene.txt")), "FAIL"), "Download deleted")
 }
 
 func TestUsers(t *testing.T) {
 	ceo := cloud.GetUser("important", "7890")
 	Must(t, ceo.Name == "Big CEO", "Get the user")
 }
-
 
 
 

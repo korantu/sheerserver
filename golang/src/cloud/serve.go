@@ -91,10 +91,12 @@ func upload(w http.ResponseWriter, r *http.Request) {
 
 	q := r.URL.Query()
 	u := user(q)
+
 	if u == nil {
 		say(w, "FAIL")
 		return
 	}
+
 	file, ok := q["file"]
 	if !ok {
 		say(w, "FAIL: File name is not specified")
@@ -170,12 +172,46 @@ func download(w http.ResponseWriter, r *http.Request) {
 	w.Write( data)
 }
 
+// TODO take out all the file dancing outside 
+func delete(w http.ResponseWriter, r *http.Request) {
+	print("Deleting\n");
+	// Main response:
+	_, err := ioutil.ReadAll(r.Body) // Must read body first
+	if err != nil {
+		say( w, "FAIL:" + err.Error())
+		return
+	}
+
+	q := r.URL.Query()
+	u := user(q)
+
+	if u == nil {
+		say(w, "FAIL")
+		return
+	}
+
+	file, ok := q["file"]
+	if !ok {
+		say(w, "FAIL: File name is not specified")
+		return
+	}
+	full_name := path.Join(u.Login, file[0])
+	dir := path.Dir(full_name)
+	if strings.Contains(dir, "..") {
+		say(w, "FAIL: .. is not allowed in the path")
+		return
+	}
+	os.Remove( full_name)
+	say(w, "OK")
+}
+
 // Server
 func Serve() {
 	http.HandleFunc("/info", info)
 	http.HandleFunc("/authorize", authorize)
 	http.HandleFunc("/upload", upload)
 	http.HandleFunc("/download", download)
+	http.HandleFunc("/delete", delete)
 	http.ListenAndServe(":"+port, nil)
 
 }
@@ -217,4 +253,8 @@ func (i Identity) Upload( remote string, data []byte) string {
 
 func (i Identity) Download( remote string) []byte {
 	return Get("download?login=" + i.Login + "&password=" + i.Password + "&file=" + remote)
+}
+
+func (i Identity) Delete( remote string) string {
+	return string(Get("delete?login=" + i.Login + "&password=" + i.Password + "&file=" + remote))
 }
