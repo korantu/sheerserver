@@ -9,7 +9,7 @@
     test.SetServer("http://localhost:8080");
     QString m_sMyUrl = test.GetUrl("info");
 
-    test.SetUrl(m_sMyUrl);
+    test.SetServer(m_sMyUrl);
     test.CommunicationChannel();
     if(test.IsOk())
     {
@@ -23,9 +23,11 @@
 /*bool testLog()
 {
     ClientHttp test1;
-    test1.SetServer("http://localhost:8080/info");
-    test1.SetUserName("Alvine");
-    test1.SetUserPassword("Senami");
+    //test1.SetServer("http://localhost:8080/authorize?login=abc&password=123");
+    test1.SetUserName("abc");
+    test1.SetUserPassword("123");
+    QString m_Url = "http://localhost:8080/authorize?login="+test1.GetUser()+"&password="+test1.GetPassword();
+    test1.SetServer(m_Url);
 
     test1.ConnectServer();
     if(test1.IsOk())
@@ -36,12 +38,17 @@
     }
     return test1.IsOk();
 }
-
 */
-/*bool testFileUpload()
+
+bool testFileUpload()
 {
     ClientHttp test2;
-    test2.PostFile("http://localhost:8080/info", "C:/Data/test.pdf");
+    test2.SetUserName("abc");
+    test2.SetUserPassword("123");
+    test2.SetFileName("C:/Data/Tulips.jpg");
+    QString m_sFile = test2.GetFileName().section('/',-1);
+    QString m_sUrl = "http://localhost:8080/upload?login="+test2.GetUser()+"&password="+test2.GetPassword()+"&file="+m_sFile;
+    test2.SetServer(m_sUrl);
 
     test2.UploadFileToServer();
     if(test2.IsOk())
@@ -52,7 +59,7 @@
     }
     return test2.IsOk();
 }
-*/
+
 /*bool testReadDir()
 {
     ClientHttp testRead;
@@ -68,7 +75,10 @@
 bool testDownload()
 {
     ClientHttp testDown;
-    testDown.SetUrl("https://www.java.net//today/2004/07/30/Spring.pdf");
+    testDown.SetUserName("abc");
+    testDown.SetUserPassword("123");
+    QString m_sUrl = "http://localhost:8080/download?login="+testDown.GetUser()+"&password="+testDown.GetPassword()+"&file=Tulips.jpg";
+    testDown.SetServer(m_sUrl);
     testDown.DownloadData();
 
     if(testDown.IsOk() == true){
@@ -86,9 +96,9 @@ int main(int argc, char *argv[])
 
     //qDebug() << testHttp();//communication to server
     //qDebug() << testLog();// send data to server
-    //qDebug() << testFileUpload();
+    qDebug() << testFileUpload();
     //qDebug() << testReadDir();
-    qDebug() << testDownload();
+    //qDebug() << testDownload();
     
     return a.exec();
 

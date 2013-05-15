@@ -22,6 +22,10 @@ public:
     void SetUser(QString m_sUser, QString m_sPass);
     void SetUrl(QString m_sSiteUrl);
     void SetUserName(QString m_sNameUser);
+    QString GetUser();
+    QString GetPassword();
+    QString GetUrlServer();
+    QString GetFileName();
     void SetUserPassword(QString m_sPasswordUser);
     void SetFileName(QString m_sNameFile);
     QString GetUrl(QString m_sValPath);

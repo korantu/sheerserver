@@ -16,8 +16,8 @@ void ClientHttp::ConnectServer()
     m_bDataToSend.append("--" + bound + "--\r\n");
 
     QNetworkRequest m_oRequest = QNetworkRequest(m_oUrl);
-    m_oRequest.setRawHeader("User", m_sUserName.toUtf8());
-    m_oRequest.setRawHeader("Password", m_sUserPassword.toUtf8());
+    m_oRequest.setRawHeader("login", m_sUserName.toUtf8());
+    m_oRequest.setRawHeader("password", m_sUserPassword.toUtf8());
     m_oRequest.setRawHeader(QString("Content-Type").toUtf8(),QString("multipart/form-data; boundary=" + bound).toUtf8());
     m_oRequest.setRawHeader(QString("Content-Lenght").toUtf8(), QString::number(m_bDataToSend.length()).toUtf8());
 
@@ -33,7 +33,7 @@ void ClientHttp::ConnectServer()
 void ClientHttp::CommunicationChannel()
 {
     m_oNetworkManager = new QNetworkAccessManager(this);
-    QUrl m_oUrl(m_sUrlSite); //Url of the site
+    QUrl m_oUrl(m_sUrlServer); //Url of the site
 
     m_oReply = m_oNetworkManager->get(QNetworkRequest(m_oUrl));
     QEventLoop loop;
@@ -55,6 +55,7 @@ void ClientHttp::UploadFileToServer()
 
     m_oNetworkManager = new QNetworkAccessManager(this);
     QUrl m_oUrl(m_sUrlServer); //the Server URL
+    qDebug() << "File : " <<m_sFileNameCom << " Url : " << m_sUrlServer;
 
     QString bound="margin";
     QByteArray m_bDataToSend(QString("--" + bound + "\r\n").toUtf8());
@@ -71,7 +72,7 @@ void ClientHttp::UploadFileToServer()
     //file to post
     QFile *file = new QFile(m_sFileNameCom);
     file->open(QIODevice::ReadOnly);
-
+    qDebug() << "Start";
     QNetworkRequest m_oRequest = QNetworkRequest(m_oUrl);
     m_oRequest.setHeader(QNetworkRequest::ContentTypeHeader,QVariant("application/x-www-form-urlencoded"));
 
@@ -89,6 +90,9 @@ void ClientHttp::UploadFileToServer()
     connect(m_oReply, SIGNAL(uploadProgress(qint64, qint64)), SLOT(uploadProgress(qint64, qint64)));
     connect(m_oReply, SIGNAL(finished()), this, SLOT(responseUpload()));
     loop.exec();
+
+    //m_oMyFile.close();
+    //file->close();
 
     //DataRetrieve(m_oReply);
 }
@@ -170,6 +174,12 @@ void ClientHttp::SetServer(QString m_sServerUrl)
     m_sUrlServer = m_sServerUrl;
 }
 
+//return the Url for Uploding
+QString ClientHttp::GetUrlServer()
+{
+    return m_sUrlServer;
+}
+
 //define a User by his name and his password
 void ClientHttp::SetUser(QString m_sUser, QString m_sPass)
 {
@@ -195,16 +205,34 @@ void ClientHttp::SetUserName(QString m_sNameUser)
     m_sUserName = m_sNameUser;
 }
 
+//return login
+QString ClientHttp::GetUser()
+{
+    return m_sUserName;
+}
+
 //define the password of an user
 void ClientHttp::SetUserPassword(QString m_sPasswordUser)
 {
     m_sUserPassword = m_sPasswordUser;
 }
 
+//return Password
+QString ClientHttp::GetPassword()
+{
+    return m_sUserPassword;
+}
+
 //define the name of a file
 void ClientHttp::SetFileName(QString m_sNameFile)
 {
     m_sFileNameCom = m_sNameFile;
+}
+
+//return File Name
+QString ClientHttp::GetFileName()
+{
+    return m_sFileNameCom;
 }
 
 //define the Url and the name of a file
@@ -313,6 +341,7 @@ QString ClientHttp::getMimeType(QString extension) const
 void ClientHttp::responseUpload()
 {
     DataRetrieve(m_oReply);
+    //FileRetrieve("C:/Data",m_oReply);
 }
 
 //slot when a file is downloaded from a server
@@ -337,7 +366,7 @@ void ClientHttp::downloadProgress(qint64 bytesReceived, qint64 bytesTotal)
 void ClientHttp::DownloadData()
 {
     m_oNetworkManager = new QNetworkAccessManager(this);
-    QUrl m_oUrl(m_sUrlSite);
+    QUrl m_oUrl(m_sUrlServer);
 
     m_oReply = m_oNetworkManager->get(QNetworkRequest(m_oUrl));
     QEventLoop loop;
@@ -353,18 +382,21 @@ void ClientHttp::DownloadData()
 void ClientHttp::FileRetrieve(QString m_sFileNamePath, QNetworkReply *m_oResponse)
 {
     qDebug() << "Hello" << m_oResponse->isFinished() << m_oResponse->error() << "\n";
+    qDebug() << "Data" << m_oResponse->readAll();
     if(m_oResponse){
         if(m_oResponse->error() == QNetworkReply::NoError) //If there is no error
         {
             m_bVal = true;
-            QUrl m_oUrl(m_sUrlSite);
+            //QUrl m_oUrl(m_sUrlServer);
             qDebug() << "Received Network Reply\n";
             qDebug() << "Here is the error: " << ErrorDescription(m_oResponse->error()) << "\n";
-            QFileInfo m_oFileInfo = m_oUrl.path();
-            QFile m_oFile(m_sFileNamePath+"/"+m_oFileInfo.fileName());
+            //QFileInfo m_oFileInfo = m_oUrl.path();
+            QString m_sFile = m_sUrlServer.section('=', -1);
+            QFile m_oFile(m_sFileNamePath+"/"+m_sFile);
             m_oFile.open(QIODevice::WriteOnly);
             m_oFile.write(m_oResponse->readAll());
-            qDebug() << "File Name : " << m_oFileInfo.fileName();
+            m_oFile.close();
+            qDebug() << "File Name : " << m_oFile.fileName();
         }else {
 
             m_bVal = true;
