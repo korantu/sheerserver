@@ -25,11 +25,10 @@ void TestSheerCloud::SheerLinkUploadDownload() {
   QVERIFY2( result.contains("123"), "Sent/recieved data mismatch");
 };
 
-
 void TestSheerCloud::SheerLinkUploadDownloadBulk() {
   SheerLinkLogin();
 
-  QByteArray massive("1234567890abcdefg"); // Every letter is a megabyte.
+  QByteArray massive("1234567890abcdefghijklmn"); // Every letter is a megabyte.
   massive = massive.repeated(1000000);
   link.Upload("very/huge/file.txt", massive);
   loop.exec();
@@ -41,5 +40,29 @@ void TestSheerCloud::SheerLinkUploadDownloadBulk() {
   QVERIFY2( result == massive, "Sent/recieved data mismatch");
 };
 
+void TestSheerCloud::SheerLinkDelete() {
+  SheerLinkLogin();
+
+  link.Upload("very/not_needed/file.txt", "123");
+  loop.exec();
+
+  link.Upload("very/not_needed/file_too.txt", "123");
+  loop.exec();
+
+  QByteArray result;
+  link.Download("very/not_needed/file.txt", result);
+  loop.exec();
+
+  QVERIFY2( result.contains("123"), "Sent/recieved data mismatch");
+
+  link.Delete("very/not_needed/file.txt");
+  loop.exec();
+
+  result.clear();
+  link.Download("very/not_needed/file.txt", result);
+  loop.exec();
+
+  QVERIFY2( ! result.contains("123"), "Deleted file should have failed to be downloaded");
+};
 
 QTEST_MAIN(TestSheerCloud)

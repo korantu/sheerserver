@@ -36,6 +36,14 @@ void SheerCloudLink::Download(QString file, QByteArray & out){
 	   this, SLOT(download_completed( QNetworkReply *)) );
 };
 
+void SheerCloudLink::Delete(QString file){
+  QNetworkRequest upload_req( QUrl( m_location + "/delete?login=" + m_login + "&password=" + m_password + "&file=" + file ));
+  get( upload_req);
+  connect( this, SIGNAL(finished( QNetworkReply *)), 
+	   this, SLOT(delete_completed( QNetworkReply *)) );
+
+};
+
 bool SheerCloudLink::Authorized(){
   return m_is_authorized;
 };
@@ -61,5 +69,12 @@ void SheerCloudLink::download_completed( QNetworkReply * resp){
     *m_out = got;
   };
   disconnect( this, SLOT(download_completed( QNetworkReply *)) );
+  done();
+};
+
+void SheerCloudLink::delete_completed( QNetworkReply * resp){
+  QByteArray got = resp->readAll();
+  //TODO error reporting
+  disconnect( this, SLOT(upload_completed( QNetworkReply *)) );
   done();
 };

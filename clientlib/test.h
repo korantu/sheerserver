@@ -23,6 +23,7 @@ class TestSheerCloud: public QObject {
   void SheerLinkLogin();
   void SheerLinkUploadDownload();
   void SheerLinkUploadDownloadBulk();
+  void SheerLinkDelete();
 };
 
 #endif //  __test_h__
