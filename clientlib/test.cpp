@@ -40,7 +40,6 @@ void TestSheerCloud::SheerLinkUploadDownloadBulk() {
   QVERIFY2( result == massive, "Sent/recieved data mismatch");
 };
 
-<<<<<<< HEAD
 void TestSheerCloud::SheerLinkDelete() {
   SheerLinkLogin();
 
@@ -66,6 +65,4 @@ void TestSheerCloud::SheerLinkDelete() {
   QVERIFY2( ! result.contains("123"), "Deleted file should have failed to be downloaded");
 };
 
-=======
->>>>>>> 5662c910da3d579be88bd01a0bfe9b3b4b5b1934
 QTEST_MAIN(TestSheerCloud)

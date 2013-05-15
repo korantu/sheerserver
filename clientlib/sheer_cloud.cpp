@@ -39,6 +39,7 @@ void SheerCloudLink::Download(QString file, QByteArray & out){
   connect(reply, SIGNAL(finished()), SLOT(download_completed()));
   /*connect( this, SIGNAL(finished( QNetworkReply *)),
        this, SLOT(download_completed( QNetworkReply *)) );*/
+<<<<<<< HEAD
 };
 
 void SheerCloudLink::Delete(QString file){
@@ -47,6 +48,8 @@ void SheerCloudLink::Delete(QString file){
   connect( this, SIGNAL(finished( QNetworkReply *)), 
 	   this, SLOT(delete_completed( QNetworkReply *)) );
 
+=======
+>>>>>>> 5662c910da3d579be88bd01a0bfe9b3b4b5b1934
 };
 
 bool SheerCloudLink::Authorized(){
@@ -77,6 +80,7 @@ void SheerCloudLink::download_completed(){
   };
   disconnect( this, SLOT(download_completed()) );
   doneNetwork(reply);
+<<<<<<< HEAD
 };
 
 void SheerCloudLink::delete_completed( QNetworkReply * resp){
@@ -85,6 +89,10 @@ void SheerCloudLink::delete_completed( QNetworkReply * resp){
   disconnect( this, SLOT(upload_completed( QNetworkReply *)) );
   done();
 };
+=======
+};
+
+>>>>>>> 5662c910da3d579be88bd01a0bfe9b3b4b5b1934
 void SheerCloudLink::doneNetwork(QNetworkReply *reply)
 {
     qDebug() << "Data : " << reply->readAll();
@@ -94,6 +102,10 @@ void SheerCloudLink::doneNetwork(QNetworkReply *reply)
     m_oFile.close();
 }
 
+<<<<<<< HEAD
+=======
+//slot to check the upload progress
+>>>>>>> 5662c910da3d579be88bd01a0bfe9b3b4b5b1934
 void SheerCloudLink::uploadProgress(qint64 bytesSent, qint64 bytesTotal)
 {
     qDebug() << "Uploaded" << bytesSent << "of" << bytesTotal;
