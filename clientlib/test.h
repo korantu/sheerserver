@@ -5,19 +5,19 @@
 
 #include <QtTest/QtTest>
 
-class TestSheerCloud: public QObject {
+class TestSheerCloudReally: public QObject {
   Q_OBJECT
 
   SheerCloudLink link;
   QEventLoop loop;
  
  public:
- TestSheerCloud(): link("http://localhost:8080", "abc", "123") {
+ TestSheerCloudReally(): link("http://localhost:8080", "abc", "123") {
     link.connect( &link, SIGNAL(done()), &loop, SLOT(quit()));
   };
 
 
-    public slots:
+    private slots:
   void VerifyTesting();
   void SheerLinkLogin();
   void SheerLinkUploadDownload();

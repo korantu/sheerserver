@@ -10,6 +10,16 @@
 
 class SheerCloudLink: public QNetworkAccessManager {
   Q_OBJECT;
+ private:
+  QString m_location, m_login, m_password;
+
+  bool m_is_authorized;
+  QNetworkReply * m_reply; // Current request
+
+  QByteArray * m_out; // Keep track of output
+
+  void request_completed(); // Prepare for the next request
+
  public:
   SheerCloudLink(QString location, QString login, QString password);
   virtual ~SheerCloudLink();
@@ -21,24 +31,15 @@ class SheerCloudLink: public QNetworkAccessManager {
   void Download(QString, QByteArray &);
   void Delete(QString);
 
- public:
-  QString m_location, m_login, m_password;
-  QNetworkReply *reply;
+  signals:
+  void done();
 
-  bool m_is_authorized;
+ private slots:
+  void login_completed();
+  void upload_completed();
+  void download_completed();
+  void delete_completed();
 
-  QByteArray * m_out; // Keep track of output
-
-  public slots:
-  void login_completed( QNetworkReply *);
-  void upload_completed( QNetworkReply *);
-  void download_completed( QNetworkReply *);
-  void delete_completed( QNetworkReply *);
-  void uploadProgress(qint64 bytesSent, qint64 bytesTotal);
-  void downloadProgress(qint64 bytesReceived, qint64 bytesTotal);
-
-  //signals:
-  void doneNetwork(QNetworkReply *reply);
 };
 
 #endif
