@@ -40,6 +40,28 @@ void TestSheerCloudReally::SheerLinkUploadDownloadBulk() {
   QVERIFY2( result == massive, "Sent/recieved data mismatch");
 };
 
+void TestSheerCloudReally::SheerLinkProgress() {
+  SheerLinkLogin();
+
+  QByteArray massive( "1234567890abcdefghijklmn"); // Every letter is a megabyte.
+  massive = massive.repeated(1000000);
+  int size = massive.size();
+
+  link.Upload("very/huge/old_progressfile.txt", massive);
+  int was = m_progress_reports;
+  loop.exec();
+  QVERIFY2( m_progress_reports - was > 3, "At least 3 reports expected");
+  QVERIFY2( m_total == size, "Total is not correct");
+  QVERIFY2( m_now == size, "Current is not correct");
+  
+
+  QByteArray result;
+  link.Download("very/huge/old_progressfile.txt", result);
+  loop.exec();
+
+  QVERIFY2( result == massive, "Sent/recieved data mismatch");
+};
+
 void TestSheerCloudReally::SheerLinkDelete() {
   SheerLinkLogin();
 
@@ -64,5 +86,11 @@ void TestSheerCloudReally::SheerLinkDelete() {
 
   QVERIFY2( ! result.contains("123"), "Deleted file should have failed to be downloaded");
 };
+
+void TestSheerCloudReally::progress_check(qint64 now, qint64 total){
+  m_now = now;
+  m_total = total;
+  m_progress_reports++;
+}
 
 QTEST_MAIN(TestSheerCloudReally)

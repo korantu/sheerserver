@@ -24,12 +24,15 @@ void SheerCloudLink::Upload(QString file, const QByteArray & in){
   upload_req.setRawHeader( "content-type", "application/octet-stream");
   m_reply = post( upload_req, in);
   connect(m_reply, SIGNAL(finished()), SLOT(upload_completed()));
+  connect(m_reply, SIGNAL(uploadProgress ( qint64 , qint64 ) ), SIGNAL(progress ( qint64 , qint64 ) ));
+
 };
 
 void SheerCloudLink::Download(QString file, QByteArray & out){
   m_reply = get( QNetworkRequest( QUrl( m_location + "/download?login=" + m_login + "&password=" + m_password + "&file=" + file ) ));
   m_out = &out;
   connect(m_reply, SIGNAL(finished()), SLOT(download_completed()));
+  connect(m_reply, SIGNAL(downloadProgress ( qint64 , qint64 ) ), SIGNAL(progress ( qint64 , qint64 ) ));
 };
 
 void SheerCloudLink::Delete(QString file){
@@ -47,6 +50,7 @@ void SheerCloudLink::request_completed(){
   disconnect( this, SLOT(download_completed()) );
   disconnect( this, SLOT(upload_completed()) );
   disconnect( this, SLOT(delete_completed()) );
+  disconnect( this, SIGNAL(progress(qint64, qint64)));
   m_reply->deleteLater();
   m_reply = NULL;
   done();

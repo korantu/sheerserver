@@ -33,13 +33,13 @@ class SheerCloudLink: public QNetworkAccessManager {
 
   signals:
   void done();
+  void progress(qint64 bytesReceived, qint64 bytesTotal);
 
  private slots:
   void login_completed();
   void upload_completed();
   void download_completed();
   void delete_completed();
-
 };
 
 #endif
